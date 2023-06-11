@@ -101,7 +101,7 @@ else
     sudo apt-get update && sudo apt-get install google-cloud-cli;
   fi
 
-
+fi
 
 
 
