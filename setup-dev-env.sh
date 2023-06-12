@@ -9,24 +9,25 @@ fi
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   #check for MongoDB drivers
-  if ! command -v brew &> /dev/null; then
+  if ! brew --version &> /dev/null; then
     echo "Homebrew not found. Installing homebrew";
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";
   fi
   
-  if ! command -v poetry &> /dev/null; then
+  if ! poetry --version &> /dev/null; then
     echo "Poetry not found. Installing Poetry now";
     curl -sSL https://install.python-poetry.org | python3 -;
     export PATH="$HOME/.local/bin":$PATH;
+  fi
 
-  if ! command -v mongodb &> /dev/null; then
+  if ! mongosh --version &> /dev/null; then
     echo "MongoDB drivers not found. Installing MongoDB drivers for $(uname -a)";
     brew tap mongodb/brew;
     brew update;
     brew install mongodb-community@6.0;
   fi
 
-  if ! command -v gcloud &> /dev/null; then
+  if ! gcloud --version &> /dev/null; then
     echo "GCloud SDK not found. Installing GCloud SDK for $(uname -a) arc $CPU_TYPE";
     if [[ $CPU_TYPE == "x86"* ]]; then
       wget "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-434.0.0-darwin-x86_64.tar.gz";
@@ -42,7 +43,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     fi
   fi
 
-  if ! command -v docker &> /dev/null; then
+  if ! docker --version &> /dev/null; then
     echo "Docker Desktop not found. Installing Docker Desktop for $(uname -a) arch $CPU_TYPE";
     if [[ $CPU_TYPE == "x86"* ]]; then
       wget "https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-amd64";
@@ -55,13 +56,13 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   fi
 
 else
-  if ! command -v poetry &> /dev/null; then
+  if ! poetry --version &> /dev/null; then
     echo "Poetry not found. Installing Poetry now";
-    curl -sSL https://install.python-poetry.org | python3 -;
-    export PATH="$HOME/.local/bin":$PATH;
+    sudo aprt-get update;
+    sudo apt-get install python3-poetry;
   fi
 
-  if ! command -v mongodb &> /dev/null; then
+  if ! mongosh --version &> /dev/null; then
     echo "MongoDB drivers not found. Installing MongoDB drivers for $(uname -a) now.";
     sudo apt-get install gnupg;
     curl -fsSL https://pgp.mongodb.com/server-6.0.asc | \
@@ -72,7 +73,7 @@ else
     sudo apt-get install -y mongodb-org;
   fi
 
-  if ! command -v docker &> /dev/null; then
+  if ! docker --version &> /dev/null; then
     echo "Docker not installed. Installing Docker engine for $(uname -a) now.";
     sudo apt-get update;  
     sudo apt-get install ca-certificates curl gnupg;
@@ -91,13 +92,10 @@ else
 
   fi
 
-  if ! command -v gcloud &> /dev/null; then
-    echo "Google Cloud CLI not installed. Installing Google Cloud CLI now.";
-    sudo apt-get update;
-    sudo apt-get install apt-transport-https ca-certificates gnupg curl sudo;
-    echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list;
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.gpg;
-    sudo apt-get update && sudo apt-get install google-cloud-cli;
+  if ! gcloud --version &> /dev/null; then
+    curl -O "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-434.0.0-linux-x86_64.tar.gz";
+    tar -xvf google-cloud-cli-434.0.0-linux-x86_64.tar.gz;
+    ./google-cloud-sdk/install.sh;
+    ./google-cloud-sdk/bin/gcloud init;
   fi
-
 fi
