@@ -13,7 +13,10 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     echo "Homebrew not found. Installing homebrew";
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";
   fi
-  
+  if ! wget -version &> /dev/null; then
+    echo "Wget is not installed. Installing wget";
+    brew install wget;
+    
   if ! poetry --version &> /dev/null; then
     echo "Poetry not found. Installing Poetry now";
     curl -sSL https://install.python-poetry.org | python3 -;
@@ -58,7 +61,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 else
   if ! poetry --version &> /dev/null; then
     echo "Poetry not found. Installing Poetry now";
-    sudo aprt-get update;
+    sudo apt-get update;
     sudo apt-get install python3-poetry;
   fi
 
