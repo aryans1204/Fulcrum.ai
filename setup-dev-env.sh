@@ -26,19 +26,6 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     brew install mongodb-community@6.0;
   fi
 
-  if ! command -v docker &> /dev/null; then
-    echo "Docker Desktop not found. Installing Docker Desktop for $(uname -a) arch $CPU_TYPE";
-    if [[ $CPU_TYPE == "x86"* ]]; then
-      wget "https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-amd64";
-      cd ~/Downloads;
-      ./Docker.dmg;
-    else 
-      wget "https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-arm64";
-      cd ~/Downloads;
-      ./Docker.dmg;
-    fi
-  fi
-
   if ! command -v gcloud &> /dev/null; then
     echo "GCloud SDK not found. Installing GCloud SDK for $(uname -a) arc $CPU_TYPE";
     if [[ $CPU_TYPE == "x86"* ]]; then
@@ -46,12 +33,24 @@ if [[ $OSTYPE == 'darwin'* ]]; then
       tar -xvf google-cloud-cli*;
       ./google-cloud-sdk/install.sh;
       ./google-cloud-sdk/bin/gcloud init;
-    
+
     else
       wget "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-434.0.0-darwin-arm.tar.gz";
       tar -xvf google-cloud-cli*;
       ./google-cloud-sdk/install.sh;
       ./google-cloud-sdk/bin/gcloud init;
+    fi
+  fi
+
+  if ! command -v docker &> /dev/null; then
+    echo "Docker Desktop not found. Installing Docker Desktop for $(uname -a) arch $CPU_TYPE";
+    if [[ $CPU_TYPE == "x86"* ]]; then
+      wget "https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-amd64";
+      echo "Go to the Downloads folder, and double click the Docker.dmg installer. This will launch the 
+      setup wizard.";
+    else 
+      wget "https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-arm64";
+      "Go to the Downloads folder, and double click the Docker.dmg installer. This will launch the setup wizard";
     fi
   fi
 
