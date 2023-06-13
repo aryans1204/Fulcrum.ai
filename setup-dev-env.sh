@@ -16,6 +16,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   if ! wget -version &> /dev/null; then
     echo "Wget is not installed. Installing wget";
     brew install wget;
+  fi
     
   if ! poetry --version &> /dev/null; then
     echo "Poetry not found. Installing Poetry now";
