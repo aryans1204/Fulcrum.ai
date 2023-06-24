@@ -1,10 +1,10 @@
 from mongoengine import *
 from fastapi import APIRouter, UploadFile, File
-
+from ../models/chatbot import Chatbot, TrainingModel
 router = APIRouter()
 
-@router.get("/initChatbot/{username}/{chatbotID}", tags=["initChatbot"])
-async def init_chatbot():
+@router.get("/api/chatbot/initChatbot/{username}/{chatbotID}", tags=["initChatbot"])
+async def init_chatbot() -> Chatbot:
     '''
         initialize chatbot endpoint is called from the Fulcrum frontend each time 
         a user accesses a previously created chatbot. The endpoint is responsible for
@@ -28,8 +28,8 @@ async def init_chatbot():
     '''
     return {"response": "Hello World!!"}
 
-@router.post("/createChatbot", tags=["createChatbot"])
-async def create_chatbot(req):
+@router.post("/api/chatbot/createChatbot", tags=["createChatbot"])
+async def create_chatbot(username: str) -> Chatbot:
     '''
         Create a new chatbot for a user. This endpoint is called by the frontend the first time 
         a user wishes to create a chatbot. Frontend should first call the upload_file endpoint,
@@ -53,8 +53,8 @@ async def create_chatbot(req):
     '''
         return {"response": "Hello World!!"}
 
-@router.post("/deleteChatbot", tags=["deleteChatbot"])
-async def delete_chatbot(req):
+@router.delete("/api/chatbot/deleteChatbot/{username}/{chatbot_id}", tags=["deleteChatbot"])
+async def delete_chatbot():
      '''
         Delete an existing chatbot for s uer. This endpoit is called by the frontend whenever
         user wants to delete an existing chatbot. The endpoint performs cleanup of Google Cloud 
@@ -75,8 +75,8 @@ async def delete_chatbot(req):
     '''
     return {"response": "Hello World!!"}
 
-@router.post("/uploadTrainingData", tags=["training_data"])
-async def uploadTraining(req):
+@router.post("/api/chatbot/uploadTrainingData", tags=["training_data"])
+async def uploadTraining(req: TrainingModel):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created
         chatbot, to the Cloud Storage bucket. This endpoint should be called by the frontend, before

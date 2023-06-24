@@ -5,3 +5,7 @@ class Chatbot(BaseModel):
     chatbot_id = str
     vertex_bucket = HttpUrl
     gcs_bucket = HttpUrl
+
+class TrainingModel(BaseModel):
+    username: str
+    password: str
