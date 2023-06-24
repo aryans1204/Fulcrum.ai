@@ -1,4 +1,4 @@
-from mongoegine import StringField, IntField, Document
+from mongoengine import StringField, IntField, Document
 
 class Chatbot(Document):
     vertex_url = StringField(required=True)
