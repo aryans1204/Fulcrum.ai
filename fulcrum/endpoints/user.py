@@ -15,7 +15,7 @@ async def get_users() -> list[User]:
     return {"response": "Hello World!!"}
 
 @router.post("/api/users", tags=["register_user"])
-async def register(SignUpuser) -> User:
+async def register(user: SignUpuser) -> User:
     '''
         Endpoint for first time user registration. 
 
@@ -27,7 +27,7 @@ async def register(SignUpuser) -> User:
     return {"response": "Hello World!!"}
 
 @router.post("/api/users/login", tags=["login_user"])
-async def login(LoginUser) -> User:
+async def login(user: LoginUser) -> User:
     '''
         Endpoint for logging in a user based on username and password. All passwords are hashed
         and salted when stored in MongoDB for compliance.
