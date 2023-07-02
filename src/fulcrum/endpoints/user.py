@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from mongoengine import *
-from ../models/user import User, LoginUser, SignUpUser
+from src.models.user import User, LoginUser, SignUpUser
 
 
 router = APIRouter()

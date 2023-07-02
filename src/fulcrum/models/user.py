@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from chatbot import Chatbot
+from src.fulcrum.models.chatbot import Chatbot
 
 class User(BaseModel):
     username: str

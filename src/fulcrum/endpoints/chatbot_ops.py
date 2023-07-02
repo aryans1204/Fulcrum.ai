@@ -1,6 +1,6 @@
 from mongoengine import *
 from fastapi import APIRouter, UploadFile, File
-from ../models/chatbot import Chatbot, TrainingModel
+from src.models.chatbot import Chatbot, TrainingModel
 router = APIRouter()
 
 @router.get("/api/chatbot/initChatbot/{username}/{chatbotID}", tags=["initChatbot"])
