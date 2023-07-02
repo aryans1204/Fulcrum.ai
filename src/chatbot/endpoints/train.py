@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from mongoengine import *
-from ../../fulcrum/models/chatbot import Chatbot
+from src.fulcrum.models.chatbot import Chatbot
 import os
 router = APIRouter()
 
