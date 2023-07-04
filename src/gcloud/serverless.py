@@ -5,7 +5,7 @@ import yaml
 import tempfile
 import re
 
-def deployChatbot(chatbot: Chatbot) -> str:
+def deployChatbot(chatbot: Chatbot, username: str) -> str:
     '''
         Utility to deploy a given chatbot
         returns a URL string of the deployed resource.
@@ -20,7 +20,7 @@ def deployChatbot(chatbot: Chatbot) -> str:
     d["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] = chatbot["vertex_url"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][2]["value"] = chatbot["gcs_bucket"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][3]["value"] = chatbot["chatbot_id"]
-
+    d["metadata"]["name"] = username+chatbot["chatbot_id"]
     file = open("services_temp.yaml", "w")
     yaml.dump(d, file)
     file.close()
