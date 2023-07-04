@@ -1,6 +1,8 @@
 from mongoengine import *
 from fastapi import APIRouter, UploadFile, File
-from src.models.chatbot import Chatbot, TrainingModel
+from fulcrum.models.chatbot import Chatbot, TrainingModel
+from fulcrum.db.chatbot_config import Chatbot as ChatbotDB
+from gcloud.serverless import deployChatbot
 router = APIRouter()
 
 @router.get("/api/chatbot/initChatbot/{username}/{chatbotID}", tags=["initChatbot"])
@@ -26,6 +28,7 @@ async def init_chatbot() -> Chatbot:
             103: User token limit exceeded, cannot access chatbot due to OpenAI usage limits
         }
     '''
+    
     return {"response": "Hello World!!"}
 
 @router.post("/api/chatbot/createChatbot", tags=["createChatbot"])
