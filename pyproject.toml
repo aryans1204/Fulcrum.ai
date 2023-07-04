@@ -24,6 +24,7 @@ update = "^0.0.1"
 uvicorn = "^0.22.0"
 pydantic = "^1.10.9"
 websockets = "^11.0.3"
+pyyaml = "^6.0"
 
 
 [build-system]
