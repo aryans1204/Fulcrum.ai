@@ -1,0 +1,18 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: aryantest
+spec:
+  template:
+    spec:
+      containers:
+      - image: us-docker.pkg.dev/cloudrun/container/hello:latest
+        env:
+        - name: VERTEX_ENDPOINT
+          value: "test"
+        - name: VERTEX_BUCKET
+          value: "test"
+        - name: GCS_BUCKET
+          value: "test"
+        - name: CHATBOT_ID
+          value: "test"
