@@ -26,6 +26,7 @@ pydantic = "^1.10.9"
 websockets = "^11.0.3"
 pyyaml = "^6.0"
 command = "^0.1.0"
+chromadb = "^0.3.26"
 
 
 [build-system]
