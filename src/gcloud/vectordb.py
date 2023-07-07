@@ -34,6 +34,10 @@ def insertDB(file_path: str, username: str, chatbot_id: str):
     )
 
 def deleteDB(username: str, chatbot_id: str):
+    '''
+        Utility for deleting a collection in the ChromaDB database. This is a 
+        non-reversible action.
+    '''
     client = chromadb.Client(
         Settings(
             chroma_api_impl="rest",
