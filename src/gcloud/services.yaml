@@ -8,9 +8,7 @@ spec:
       containers:
       - image: us-docker.pkg.dev/cloudrun/container/hello:latest
         env:
-        - name: VERTEX_ENDPOINT
-          value: "test"
-        - name: VERTEX_BUCKET
+        - name: CHROMADB_INDEX
           value: "test"
         - name: GCS_BUCKET
           value: "test"

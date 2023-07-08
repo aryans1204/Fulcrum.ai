@@ -16,10 +16,9 @@ def deployChatbot(chatbot: Chatbot, username: str) -> str:
         except yaml.YAMLError as e:
             return e
     d["spec"]["template"]["spec"]["containers"][0]["image"] = os.environ["IMAGE_URL"]
-    d["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] = chatbot["vertex_bucket"]
-    d["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] = chatbot["vertex_url"]
-    d["spec"]["template"]["spec"]["containers"][0]["env"][2]["value"] = chatbot["gcs_bucket"]
-    d["spec"]["template"]["spec"]["containers"][0]["env"][3]["value"] = chatbot["chatbot_id"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] = chatbot["chromadb_index"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] = chatbot["gcs_bucket"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][2]["value"] = chatbot["chatbot_id"]
     d["metadata"]["name"] = username+chatbot["chatbot_id"]
     file = open("services_temp.yaml", "w")
     yaml.dump(d, file)
