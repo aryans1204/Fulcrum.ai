@@ -79,7 +79,7 @@ async def delete_chatbot():
     return {"response": "Hello World!!"}
 
 @router.post("/api/chatbot/uploadTrainingData", tags=["training_data"])
-async def uploadTraining(req: TrainingModel):
+async def uploadTraining(file: UploadFile, req: TrainingModel):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created
         chatbot, to the Cloud Storage bucket. This endpoint should be called by the frontend, before

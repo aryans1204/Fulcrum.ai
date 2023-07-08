@@ -16,9 +16,14 @@ def deployChatbot(chatbot: Chatbot, username: str) -> str:
         except yaml.YAMLError as e:
             return e
     d["spec"]["template"]["spec"]["containers"][0]["image"] = os.environ["IMAGE_URL"]
-    d["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] = chatbot["chromadb_index"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] = username+chatbot["chatbot_id"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] = chatbot["gcs_bucket"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][2]["value"] = chatbot["chatbot_id"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][3]["value"] = os.environ["TEMPERATURE"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][4]["value"] = os.environ["GPT_MODEL"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][5]["value"] = os.environ["TOP_P"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][6]["value"] = os.environ["CHROMA_URL"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][7]["value"] = os.environ["CHROMA_PORT"]
     d["metadata"]["name"] = username+chatbot["chatbot_id"]
     file = open("services_temp.yaml", "w")
     yaml.dump(d, file)
