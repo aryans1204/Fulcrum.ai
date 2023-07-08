@@ -54,7 +54,7 @@ async def create_chatbot(username: str) -> Chatbot:
             103: User chatbot limit exceeded, user has created more chatbots than are allowed.
         }
     '''
-        return {"response": "Hello World!!"}
+    return {"response": "Hello World!!"}
 
 @router.delete("/api/chatbot/deleteChatbot/{username}/{chatbot_id}", tags=["deleteChatbot"])
 async def delete_chatbot():
