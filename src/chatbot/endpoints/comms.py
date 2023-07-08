@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket
-from mongoengine import *
+from gcloud.gptutils import queryGPT
 
 router = APIRouter()
 
@@ -12,6 +12,7 @@ async def chat_endpoint(wb: WebSocket):
             At this section, endpoint will execute the langchain GPT querying to get back the
             response from GPT, and dump to the frontend
         '''
-        await wb.send_text("Hello World!!")
+        res = queryGPT(data)
+        await wb.send_text(res)
 
 
