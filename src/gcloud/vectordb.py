@@ -1,6 +1,7 @@
 import os
 import chromadb
 from chromadb.config import Settings
+from gcloud.pdfparser2 import parsePDF
 
 def insertDB(file_path: str, username: str, chatbot_id: str):
     '''
