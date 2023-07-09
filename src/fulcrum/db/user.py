@@ -1,6 +1,6 @@
 from mongoengine import Document, StringField, IntField, ReferenceField, ListField
 
-from src.fulcrum.db.chatbot_config import Chatbot
+from fulcrum.db.chatbot_config import Chatbot
 
 class User(Document):
     username = StringField(required=True)
