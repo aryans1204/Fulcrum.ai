@@ -180,8 +180,6 @@ def layout_to_text(layout: documentai.Document.Page.Layout, text: str) -> str:
         response += text[start_index:end_index]
     return response
 
-if __name__ == "__main__":
-  texts = parsePDF(file_path)
-  print(texts)
+
 
 
