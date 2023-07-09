@@ -29,6 +29,7 @@ command = "^0.1.0"
 chromadb = "^0.3.26"
 pypdf2 = "^3.0.1"
 google-cloud-documentai = "^2.16.1"
+transformers = "^4.30.2"
 
 
 [build-system]
