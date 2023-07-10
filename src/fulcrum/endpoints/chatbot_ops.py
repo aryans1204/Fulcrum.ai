@@ -7,7 +7,7 @@ from gcloud.vectordb import insertDB, deleteDB
 from gcloud.bucket_storage import deleteBucket, createBucket, uploadObj
 router = APIRouter()
 
-@router.get("/api/chatbot/getChatbot/{username}/{chatbotID}")
+@router.get("/api/chatbot/getChatbot/{username}/{chatbotID}", tags=["getChatbot"])
 async def giveEndpoint(username: str, chatbotID: str) -> str:
     '''
         Endpoint to get the Cloud Run deployment URL of a given chatbot based on its ID.
@@ -16,7 +16,7 @@ async def giveEndpoint(username: str, chatbotID: str) -> str:
 
     return {"url": chatbot.deployedURL}
 
-@router.get("/api/chatbot/getChatbots/{username}", tags=["initChatbot"])
+@router.get("/api/chatbot/getChatbots/{username}", tags=["getChatbots"])
 async def init_chatbot(username: str) -> Chatbot:
     '''
         initialize chatbot endpoint is called from the Fulcrum frontend each time 
@@ -103,7 +103,7 @@ async def delete_chatbot(username: str, chatbot_id: str):
     deleteDB(username, chatbot_id)
     return {"msg": "Success"}
 
-@router.post("/api/chatbot/uploadTrainingData", tags=["training_data"])
+@router.post("/api/chatbot/uploadTrainingData", tags=["trainData"])
 async def uploadTraining(file: UploadFile, req: TrainingModel):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created

@@ -38,7 +38,7 @@ def initLLM():
 def queryGPT(msg: str) -> str:
     PROMPT = """
         Prompt: Do not create assumption or give suggestions or give opinions from your own. \
-        If you don't know the anser, just say you don't know. \
+        If you don't know the answer, just say you don't know. \
         Don't ask the user if you need to find out the answer. \
     """
 
