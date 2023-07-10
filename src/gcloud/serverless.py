@@ -1,9 +1,10 @@
-from fulcrum.models.chatbot import Chatbot
+from src.fulcrum.models.chatbot import Chatbot
 import os
 import subprocess
 import yaml
 import tempfile
 import re
+
 
 def deployChatbot(chatbot: Chatbot, username: str) -> str:
     '''

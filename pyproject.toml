@@ -29,6 +29,9 @@ command = "^0.1.0"
 chromadb = "^0.3.26"
 pypdf2 = "^3.0.1"
 google-cloud-documentai = "^2.16.1"
+multipart = "^0.2.4"
+gcloud = "^0.18.3"
+python-multipart = "^0.0.6"
 
 
 [build-system]

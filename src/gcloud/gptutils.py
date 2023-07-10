@@ -6,7 +6,7 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 import chromadb
 from chromadb.config import Settings
-from fulcrum.models.chatbot import Chatbot
+from src.fulcrum.models.chatbot import Chatbot
 import os
 import ctypes
 

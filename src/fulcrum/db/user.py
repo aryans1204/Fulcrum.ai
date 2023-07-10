@@ -2,6 +2,7 @@ from mongoengine import Document, StringField, IntField, ReferenceField, ListFie
 
 from src.fulcrum.db.chatbot_config import Chatbot
 
+
 class User(Document):
     username = StringField(required=True)
     password = StringField(required=True)

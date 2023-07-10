@@ -1,7 +1,8 @@
 from fastapi import APIRouter, WebSocket
-from gcloud.gptutils import queryGPT
+from src.gcloud.gptutils import queryGPT
 
 router = APIRouter()
+
 
 @router.websocket("/api/comms/chat")
 async def chat_endpoint(wb: WebSocket):

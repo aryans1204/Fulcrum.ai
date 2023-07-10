@@ -1,9 +1,7 @@
 from src.fulcrum.models.chatbot import Chatbot
-from src.fulcrum.models.user import User, LoginUser, SignUpUser
+from src.fulcrum.models.user import User
 
- __all__ = [
+__all__ = [
     "Chatbot",
-     "User",
-     "LoginUser",
-     "SignUpUser"
- ]
+    "User"
+]

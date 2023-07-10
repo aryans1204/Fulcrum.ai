@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from src.fulcrum.models.chatbot import Chatbot
 
+
 class User(BaseModel):
     username: str
     password: str
@@ -8,12 +9,4 @@ class User(BaseModel):
     config: list[Chatbot]
 
 
-class LoginUser(BaseModel):
-    username: str
-    password: str
-
-
-class SignUpUser(BaseModel):
-    username: str
-    password: str
 
