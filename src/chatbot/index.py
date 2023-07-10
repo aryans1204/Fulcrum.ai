@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+chatbot_app = FastAPI()
 
 #@app.post("/send_message"):
 
