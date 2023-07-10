@@ -1,12 +1,10 @@
 from mongoengine import *
-from fastapi import APIRouter, UploadFile, File, Depends
-
-from ..auth.user import get_user
+from fastapi import APIRouter, UploadFile, File
 from ...fulcrum.models.chatbot import Chatbot, TrainingModel
 from ...fulcrum.db.chatbot_config import Chatbot as ChatbotDB
 from ...gcloud.serverless import deployChatbot
 
-router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(get_user)])
+router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"])
 
 
 @router.get("/initChatbot/{username}/{chatbotID}", tags=["initChatbot"])

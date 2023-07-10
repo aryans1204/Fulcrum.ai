@@ -1,12 +1,10 @@
-from fastapi import APIRouter, WebSocket, Depends
-
-from src.fulcrum.auth.user import get_user
+from fastapi import APIRouter, WebSocket
 from src.gcloud.gptutils import queryGPT
 
-router = APIRouter(prefix="/api/comms", dependencies=[Depends(get_user)])
+router = APIRouter()
 
 
-@router.websocket("/chat")
+@router.websocket("/api/comms/chat")
 async def chat_endpoint(wb: WebSocket):
     await wb.accept()
     while True:
