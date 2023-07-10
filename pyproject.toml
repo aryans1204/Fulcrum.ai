@@ -32,6 +32,7 @@ google-cloud-documentai = "^2.16.1"
 multipart = "^0.2.4"
 gcloud = "^0.18.3"
 python-multipart = "^0.0.6"
+authlib = "^1.2.1"
 
 
 [build-system]
