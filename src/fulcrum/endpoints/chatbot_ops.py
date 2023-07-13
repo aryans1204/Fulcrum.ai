@@ -5,6 +5,8 @@ from fulcrum.db.user import User
 from gcloud.serverless import deployChatbot, deleteChatbot
 from gcloud.vectordb import insertDB, deleteDB
 from gcloud.bucket_storage import deleteBucket, createBucket, uploadObj
+import shutil
+import os
 router = APIRouter()
 
 @router.get("/api/chatbot/getChatbot/{username}/{chatbotID}", tags=["getChatbot"])
@@ -78,7 +80,7 @@ async def create_chatbot(username: str, chatbotID: str) -> Chatbot:
 
 @router.delete("/api/chatbot/deleteChatbot/{username}/{chatbot_id}", tags=["deleteChatbot"])
 async def delete_chatbot(username: str, chatbot_id: str):
-     '''
+    '''
         Delete an existing chatbot for s uer. This endpoit is called by the frontend whenever
         user wants to delete an existing chatbot. The endpoint performs cleanup of Google Cloud 
         infra resources, as well as updating the MongoDB schema for the user. Returns error
@@ -116,5 +118,21 @@ async def uploadTraining(file: UploadFile, req: TrainingModel):
             "chatbotID" : "UUID"
         }
     '''
+    try:
+        os.mkdir("images")
+    except Exception as e:
+        return {"msg":"Failure", "error":e}
+
+    file_path = os.getcwd()+"/images"+file.filename.replace(" ", "-")
+    with open(file_path, "wb") as f:
+        f.write(file.file.read())
+        f.close()
+    try:
+        createBucket(req.username+req.chatbotID)
+        uploadObj(req.username+req.chatbotID, file_path, req.username+req.chatbotID+".pdf")
+        insertDB(file_path, req.username, req.chatbotID)
+        return {"msg": "Success"}
+    except Exception as e:
+        return {"msg": "Failure", "error": e}
     return {"filename" : file.filename}
 
