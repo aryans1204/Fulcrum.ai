@@ -1,49 +1,50 @@
 from fastapi import APIRouter
-from mongoengine import *
-from src.models.user import User, LoginUser, SignUpUser
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
 
+from fulcrum.index import oauth
+from fulcrum.db.user import User
 
 router = APIRouter()
 
 @router.get("/api/users", tags=["get_users"])
-async def get_users() -> list[User]:
+async def get_users():
     '''
         Endpoint to get all users in the MongoDB collection. Used primarily for internal testing
         purposes.
 
     '''
-    return {"response": "Hello World!!"}
+    return User.objects()
 
-@router.post("/api/users", tags=["register_user"])
-async def register(user: SignUpuser) -> User:
+@router.route("/api/users/login", tags=["login_user"])
+async def login(request: Request):
     '''
-        Endpoint for first time user registration. 
-
-        req: {
-            "username" : "Username of the user",
-            "password" : "Password of the user"
-        }
+        OAuth endpoint for Google login
     '''
-    return {"response": "Hello World!!"}
-
-@router.post("/api/users/login", tags=["login_user"])
-async def login(user: LoginUser) -> User:
-    '''
-        Endpoint for logging in a user based on username and password. All passwords are hashed
-        and salted when stored in MongoDB for compliance.
-
-        req : {
-            "username" : "User name of the user",
-            "password" : "Password of the user"
-        }
-    '''
-    return {"response": "Hello World!!"}
+    redirect_uri = request.url_for('api/users/auth')
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @router.post("/api/users/logout", tags=["logout_user"])
-async def logout(username):
+async def logout(request: Request):
     '''
         Endpoint for logging out a user based on username and password.
     '''
-    return {"response" : "Hello World!!"}
+    request.session.pop('user', None)
+    return RedirectResponse(url="/")
 
+@router.route("/api/users/auth", tags=["google_auth"])
+async def authenticate(request: Request):
+    try:
+        token = await oauth.google.authorize_access_token(request)
+    except OAuthError as error:
+        return {"error":error.error}
+    user = token['userinfo']
+    if user:
+        request.session['user'] = dict(user)
+        username = request.session.get('user').get('email')
+        userdb = User.objects(username=username)
+        if not userdb:
+            u = User(username=username)
+            u.save()
+    return RedirectResponse(url="/")
 
