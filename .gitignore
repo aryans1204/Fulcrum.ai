@@ -2,3 +2,4 @@ google-cloud-sdk/
 google-cloud-cli-*
 __py*
 env.sh
+.env
