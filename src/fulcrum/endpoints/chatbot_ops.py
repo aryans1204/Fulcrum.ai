@@ -18,7 +18,7 @@ async def giveEndpoint(username: str, chatbotID: str) -> str:
 
     return {"url": chatbot.deployedURL}
 
-@router.get("/api/chatbot/getChatbots/{username}", tags=["getChatbots"])
+@router.get("/api/chatbot/getChatbots/{username}", tags=["getChatbots"], response_model=None)
 async def init_chatbot(username: str) -> Chatbot:
     '''
         initialize chatbot endpoint is called from the Fulcrum frontend each time 
@@ -41,11 +41,11 @@ async def init_chatbot(username: str) -> Chatbot:
             103: User token limit exceeded, cannot access chatbot due to OpenAI usage limits
         }
     '''
-   user = User.objects(username=username)
-   ids = [c.chatbot_id for c in user.config]
-   return {"chatbots": ids}
+    user = User.objects(username=username)
+    ids = [c.chatbot_id for c in user.config]
+    return {"chatbots": ids}
 
-@router.post("/api/chatbot/createChatbot", tags=["createChatbot"])
+@router.post("/api/chatbot/createChatbot", tags=["createChatbot"], response_model=None)
 async def create_chatbot(username: str, chatbotID: str) -> Chatbot:
     '''
         Create a new chatbot for a user. This endpoint is called by the frontend the first time 
@@ -106,7 +106,7 @@ async def delete_chatbot(username: str, chatbot_id: str):
     return {"msg": "Success"}
 
 @router.post("/api/chatbot/uploadTrainingData", tags=["trainData"])
-async def uploadTraining(file: UploadFile, req: TrainingModel):
+async def uploadTraining(file: UploadFile, req):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created
         chatbot, to the Cloud Storage bucket. This endpoint should be called by the frontend, before

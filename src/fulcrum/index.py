@@ -2,6 +2,10 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 import os
+import mongoengine
+
+mongoengine.connect(host=os.envirion["MONGODB_URL"])
+
 config = Config('.env')
 oauth = OAuth(config)
 oauth.register(
