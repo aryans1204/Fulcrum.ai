@@ -1,50 +1,31 @@
+from authlib.integrations.base_client import OAuthError
 from fastapi import APIRouter
-from starlette.requests import Request
-from starlette.responses import RedirectResponse
+from mongoengine import *
+from fulcrum.config.auth import oauth
+from fulcrum.models.user import UserPublic
+#from fulcrum.db.user import User
 
-from fulcrum.index import oauth
-from fulcrum.db.user import User
+router = APIRouter(prefix="/api/users")
 
-router = APIRouter()
 
-@router.get("/api/users", tags=["get_users"])
-async def get_users():
-    '''
+@router.get("/list", tags=["get_users"])
+async def get_users() -> list[UserPublic]:
+    """
         Endpoint to get all users in the MongoDB collection. Used primarily for internal testing
         purposes.
 
-    '''
-    return User.objects()
+    """
+    return [UserPublic()]
 
-@router.route("/api/users/login", tags=["login_user"])
-async def login(request: Request):
-    '''
-        OAuth endpoint for Google login
-    '''
-    redirect_uri = request.url_for('api/users/auth')
-    return await oauth.google.authorize_redirect(request, redirect_uri)
 
-@router.post("/api/users/logout", tags=["logout_user"])
-async def logout(request: Request):
-    '''
-        Endpoint for logging out a user based on username and password.
-    '''
-    request.session.pop('user', None)
-    return RedirectResponse(url="/")
+@router.post("/register", tags=["register_user"])
+async def register(user) -> UserPublic:
+    """
+        Endpoint for first time user registration.
 
-@router.route("/api/users/auth", tags=["google_auth"])
-async def authenticate(request: Request):
-    try:
-        token = await oauth.google.authorize_access_token(request)
-    except OAuthError as error:
-        return {"error":error.error}
-    user = token['userinfo']
-    if user:
-        request.session['user'] = dict(user)
-        username = request.session.get('user').get('email')
-        userdb = User.objects(username=username)
-        if not userdb:
-            u = User(username=username)
-            u.save()
-    return RedirectResponse(url="/")
-
+        req: {
+            "username" : "Username of the user",
+            "password" : "Password of the user"
+        }
+    """
+    return {"response": "Hello World!!"}
