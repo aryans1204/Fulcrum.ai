@@ -37,10 +37,7 @@ def deployChatbot(chatbot: Chatbot, username: str) -> str:
     output = re.findall("https.*app", str(output))
     return output[0]
 
-<<<<<<< Updated upstream
-=======
 
 def deleteChatbot(service_name: str):
     query = f"gcloud run services delete {service_name}"
     subprocess.run(query)
->>>>>>> Stashed changes

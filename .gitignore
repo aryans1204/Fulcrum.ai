@@ -4,3 +4,9 @@ __pycache__
 env.sh
 .env
 .env
+.DS_Store
+dev/
+.idea/
+.idea/Fulcrum.ai.iml
+.idea/misc.xml
+*.xml

@@ -4,12 +4,7 @@ from pydantic import EmailStr, constr, BaseModel, validator
 from fulcrum.models.core import DateTimeModelMixin, IDModelMixin, CoreModel
 
 
-<<<<<<< Updated upstream
-class User(BaseModel):
-=======
 # simple check for valid username
-
-
 def validate_username(username: str) -> str:
     allowed = string.ascii_letters + string.digits + "-" + "_"
     assert all(char in allowed for char in username), "Invalid characters in username."
@@ -35,16 +30,13 @@ class UserCreate(CoreModel):
     """
     email: EmailStr
     password: constr(min_length=7, max_length=100)
->>>>>>> Stashed changes
     username: str
 
     @validator("username", pre=True)
-    def username_is_valid(self, username: str) -> str:
+    def username_is_valid(cls, username: str) -> str:
         return validate_username(username)
 
 
-<<<<<<< Updated upstream
-=======
 class UserUpdate(CoreModel):
     """
     Users are allowed to update their email and/or username
@@ -53,7 +45,7 @@ class UserUpdate(CoreModel):
     username: Optional[str]
 
     @validator("username", pre=True)
-    def username_is_valid(self, username: str) -> str:
+    def username_is_valid(cls, username: str) -> str:
         return validate_username(username)
 
 
@@ -63,7 +55,6 @@ class UserPasswordUpdate(CoreModel):
     """
     password: constr(min_length=7, max_length=100)
     salt: str
->>>>>>> Stashed changes
 
 
 class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
