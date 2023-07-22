@@ -9,7 +9,7 @@ project_id = os.environ["PROJECT_ID"]
 location = os.environ["LOCATION"] # Format is "us" or "eu"
 processor_id = os.environ["PROCESSOR_ID"] # Create processor before running sample
 processor_version = "rc" # Refer to https://cloud.google.com/document-ai/docs/manage-processor-versions for more information
-file_path = "/home/aryan/Downloads/FinTech Hackcelerator Project Coordinator (Events).pdf"
+#file_path = "/home/aryan/Downloads/FinTech Hackcelerator Project Coordinator (Events).pdf"
 mime_type = "application/pdf" # Refer to https://cloud.google.com/document-ai/docs/file-types for supported file types
 
 
