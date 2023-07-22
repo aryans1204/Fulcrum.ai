@@ -4,10 +4,6 @@ from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import OAuth2PasswordBearer
-<<<<<<< Updated upstream
-=======
-from authlib.integrations.base_client import OAuthError
->>>>>>> Stashed changes
 
 from starlette.config import Config
 from starlette.requests import Request
@@ -16,13 +12,7 @@ from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from authlib.integrations.starlette_client import OAuth
 import os
-<<<<<<< Updated upstream
 from src.fulcrum.models.user import User
-=======
-#from src.fulcrum.models.user import User
-from fulcrum.config.auth import oauth
-from fulcrum.db.user import User
->>>>>>> Stashed changes
 
 router = APIRouter(prefix="/auth")
 FULCRUM_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
@@ -59,23 +49,8 @@ async def login(request: Request):
 async def auth(request: Request):
     print("request.session:", json.dumps(request.session, indent=4))
     # Perform Google OAuth
-<<<<<<< Updated upstream
     token = await oauth.google.authorize_access_token(request)
     user = token.get('userinfo')
-=======
-    try:
-        token = await oauth.google.authorize_access_token(request)
-        user = token.get('userinfo')
-    except OAuthError as e:
-        return {"error": e.error}
-    if user:
-        request.session['user'] = dict(user)
-        username = request.session.get('user').get('email')
-        userdb = User.objects(username=username)
-        print("logged in")
-        if not userdb:
-            pass #TODO(dev): Create register page
->>>>>>> Stashed changes
 
     # Save the user
     request.session['user'] = dict(user)

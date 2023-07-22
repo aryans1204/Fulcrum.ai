@@ -1,0 +1,26 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: aryantest
+spec:
+  template:
+    spec:
+      containers:
+      - image: us-docker.pkg.dev/cloudrun/container/hello:latest
+        env:
+        - name: chromadb_index
+          value: "test"
+        - name: GCS_BUCKET
+          value: "test"
+        - name: CHATBOT_ID
+          value: "test"
+        - name: temperature
+          value: 2
+        - name: gpt_model
+          value: "test"
+        - name: top_p
+          value: 1
+        - name: chroma_url
+          value: "test"
+        - name: chroma_port
+          value: 123
