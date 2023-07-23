@@ -2,12 +2,11 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from fulcrum.index import oauth
 from fulcrum.db.user import User
+user_router = APIRouter()
 
-router = APIRouter()
-
-@router.get("/api/users", tags=["get_users"])
+from fulcrum.index import oauth
+@user_router.get("/api/users", tags=["get_users"])
 async def get_users():
     '''
         Endpoint to get all users in the MongoDB collection. Used primarily for internal testing
@@ -16,15 +15,15 @@ async def get_users():
     '''
     return User.objects()
 
-@router.route("/api/users/login", tags=["login_user"])
+@user_router.route("/login")
 async def login(request: Request):
     '''
         OAuth endpoint for Google login
     '''
-    redirect_uri = request.url_for('api/users/auth')
+    redirect_uri = request.url_for('auth')
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-@router.post("/api/users/logout", tags=["logout_user"])
+@user_router.post("/api/users/logout", tags=["logout_user"])
 async def logout(request: Request):
     '''
         Endpoint for logging out a user based on username and password.
@@ -32,7 +31,7 @@ async def logout(request: Request):
     request.session.pop('user', None)
     return RedirectResponse(url="/")
 
-@router.route("/api/users/auth", tags=["google_auth"])
+@user_router.route("/auth")
 async def authenticate(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)

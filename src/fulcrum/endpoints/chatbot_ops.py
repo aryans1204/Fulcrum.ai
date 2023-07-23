@@ -1,4 +1,3 @@
-from mongoengine import *
 from fastapi import APIRouter, UploadFile, File
 from fulcrum.db.chatbot_config import Chatbot
 from fulcrum.db.user import User
