@@ -37,10 +37,13 @@ oauth.register(
 
 @router.get('/login/google', tags=['authentication'])  # Tag it as "authentication" for our docs
 async def login(request: Request):
-    # Redirect Google OAuth back to our application
-    redirect_uri = request.url_for('auth_google')
-    print("redirect_uri:", redirect_uri)
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+    if request.session.get("user") is None:
+        # Redirect Google OAuth back to our application
+        redirect_uri = request.url_for('auth_google')
+        print("redirect_uri:", redirect_uri)
+        return await oauth.google.authorize_redirect(request, redirect_uri)
+    else:
+        return {"email": request.session.get("user").get("email")}
 
 
 @router.route('/auth/google', name="auth_google")
@@ -54,16 +57,12 @@ async def auth(request: Request):
         return {"error": e.error}
     if user:
         request.session['user'] = dict(user)
-        username = request.session.get('user').get('email')
+        username = dict(user).get('email')
         userdb = User.objects(username=username)
         print("logged in")
         if not userdb:
             pass #TODO(dev): Create register page
-
-    # Save the user
-    request.session['user'] = dict(user)
-
-    return RedirectResponse(url='/')
+    return JSONResponse({"email": user.get("email")})
 
 
 @router.get('/logout', tags=['authentication'])  # Tag it as "authentication" for our docs

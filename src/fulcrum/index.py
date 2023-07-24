@@ -1,12 +1,14 @@
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.requests import Request
 import os
 import mongoengine
 from fastapi import FastAPI
 from fulcrum.endpoints.chatbot_ops import router as chat_router
 from fulcrum.endpoints.user import router as user_router
 from fulcrum.endpoints.auth import router as auth_router
+from fulcrum.auth.user import get_user
 
 mongoengine.connect(host=os.environ["MONGODB_URL"])
 
@@ -29,7 +31,11 @@ for router in routers:
 app.add_middleware(SessionMiddleware, secret_key=os.environ["SECRET_KEY"])
 
 @app.get("/")
-async def main():
-    return {"message": "Hello World!!"}
+async def main(request: Request):
+    user = request.session.get('user')
+    if not user:
+        return {"message": "Hello Guest!!"}
+    else:
+        return {"message": f"Hello {user['name']}"}
 
 

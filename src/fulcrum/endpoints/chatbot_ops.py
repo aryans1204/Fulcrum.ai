@@ -12,7 +12,8 @@ from gcloud.vectordb import insertDB, deleteDB
 from gcloud.bucket_storage import deleteBucket, createBucket, uploadObj
 import shutil
 import os
-router = APIRouter(prefix="/api/chatbot")
+from starlette.requests import Request
+router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(get_user)])
 
 
 @router.get("/getChatbot/{username}/{chatbotID}", tags=["getChatbot"])
@@ -21,8 +22,6 @@ async def giveEndpoint(username: str, chatbotID: str) -> dict[str, Any]:
         Endpoint to get the Cloud Run deployment URL of a given chatbot based on its ID.
     '''
     chatbot = Chatbot.objects(chatbot_id=chatbotID)
-
-router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(get_user)])
 
 
 @router.get("/getChatbots/{username}", tags=["getChatbots"], response_model=None)
@@ -48,6 +47,11 @@ async def init_chatbot(username: str) -> dict[str, list[Any]]:
             103: User token limit exceeded, cannot access chatbot due to OpenAI usage limits
         }
     '''
+
+
+@router.get("/test", name="chatbot_test")
+async def chatbot_test(request: Request):
+    return {"message": "test"}
 
 
 @router.post("/createChatbot", tags=["createChatbot"], response_model=None)
