@@ -11,4 +11,3 @@ async def get_user(request: Request) -> Optional[dict]:
         return user
     else:
         raise HTTPException(status_code=403, detail='Could not validate credentials.')
-    return None

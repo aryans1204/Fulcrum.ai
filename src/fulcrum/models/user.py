@@ -17,11 +17,13 @@ class UserBase(CoreModel):
     """
     Leaving off password and salt from base model
     """
-    email: Optional[EmailStr]
-    username: Optional[str]
+    email: EmailStr
+    name: str
     email_verified: bool = False
     is_active: bool = True
     is_superuser: bool = False
+    no_chatbots: int = 0
+    chatbots: list = []
 
 
 class UserCreate(CoreModel):
@@ -61,8 +63,6 @@ class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
     """
     Add in id, created_at, updated_at, and user's password and salt
     """
-    password: constr(min_length=7, max_length=100)
-    salt: str
 
 
 class UserPublic(IDModelMixin, DateTimeModelMixin, UserBase):

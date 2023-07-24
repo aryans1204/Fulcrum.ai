@@ -5,6 +5,7 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+import time
 
 from src.fulcrum.auth.user import get_user
 
@@ -25,7 +26,8 @@ async def get_documentation(request: Request):
 
 @router.post('/faq', tags=["faq"])
 async def submit_faq(email: Annotated[str, Form()], category: Annotated[str, Form()], question: Annotated[str, Form()]):
-    response = dict(email=email, category=category, question=question)
+    timestamp = time.time()
+    response = dict(email=email, category=category, question=question, timestamp=timestamp)
 
     # TODO: link to db
 
