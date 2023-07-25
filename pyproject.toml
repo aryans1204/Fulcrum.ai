@@ -9,7 +9,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-langchain = "0.0.219"
+langchain = "0.0.240"
 openai = "^0.27.8"
 fastapi = "^0.97.0"
 pandas = "^2.0.2"
