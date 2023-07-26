@@ -1,69 +1,63 @@
 import string
 from typing import Optional
-from pydantic import EmailStr, constr, BaseModel, validator
+
+from bson import ObjectId
+from pydantic import EmailStr
 from fulcrum.models.core import DateTimeModelMixin, IDModelMixin, CoreModel
 
 
-# simple check for valid username
-def validate_username(username: str) -> str:
-    allowed = string.ascii_letters + string.digits + "-" + "_"
-    assert all(char in allowed for char in username), "Invalid characters in username."
-    assert len(username) >= 3, "Username must be 3 characters or more."
-    ## TODO(dev): Add in validator for username in db
-    return username
-
-
-class UserBase(CoreModel):
-    """
-    Leaving off password and salt from base model
-    """
+class UserCreateBase(CoreModel):
     email: EmailStr
     name: str
     email_verified: bool = False
     is_active: bool = True
     is_superuser: bool = False
     no_chatbots: int = 0
-    chatbots: list = []
+    chatbot_configs: list = []
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
+                "email": "jdoe@example.com",
+                "name": "Jane Doe",
+                "email_verified": True,
+                "is_active": True,
+                "is_superuser": False,
+                "no_chatbots": 0,
+                "chatbots": []
+            }
+        }
 
 
-class UserCreate(CoreModel):
-    """
-    Email, username, and password are required for registering a new user
-    """
-    email: EmailStr
-    password: constr(min_length=7, max_length=100)
-    username: str
-
-    @validator("username", pre=True)
-    def username_is_valid(cls, username: str) -> str:
-        return validate_username(username)
-
-
-class UserUpdate(CoreModel):
-    """
-    Users are allowed to update their email and/or username
-    """
+class UserUpdateBase(CoreModel):
     email: Optional[EmailStr]
-    username: Optional[str]
+    name: Optional[str]
 
-    @validator("username", pre=True)
-    def username_is_valid(cls, username: str) -> str:
-        return validate_username(username)
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
+                "email": "jdoe@example.com",
+                "name": "Jane Doe",
+                "email_verified": True,
+                "is_active": True,
+                "is_superuser": False,
+                "no_chatbots": 0,
+                "chatbots": []
+            }
+        }
 
 
-class UserPasswordUpdate(CoreModel):
-    """
-    Users can change their password
-    """
-    password: constr(min_length=7, max_length=100)
-    salt: str
-
-
-class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
+class CreateUser(IDModelMixin, UserCreateBase, DateTimeModelMixin):
     """
     Add in id, created_at, updated_at, and user's password and salt
     """
 
 
-class UserPublic(IDModelMixin, DateTimeModelMixin, UserBase):
+class UpdateUser(DateTimeModelMixin, UserUpdateBase):
     pass

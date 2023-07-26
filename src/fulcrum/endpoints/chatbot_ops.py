@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from mongoengine import *
 from fastapi import APIRouter, UploadFile, File
 
-from fulcrum.auth.user import get_user
+from fulcrum.auth.user import validate_user
 from fulcrum.db.chatbot_config import Chatbot
 from fulcrum.db.user import User
 from gcloud.serverless import deployChatbot, deleteChatbot
@@ -13,7 +13,8 @@ from gcloud.bucket_storage import deleteBucket, createBucket, uploadObj
 import shutil
 import os
 from starlette.requests import Request
-router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(get_user)])
+router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(validate_user)])
+
 
 
 @router.get("/getChatbot/{username}/{chatbotID}", tags=["getChatbot"])
@@ -103,7 +104,7 @@ async def delete_chatbot(username: str, chatbot_id: str):
 
 
 @router.post("/uploadTrainingData", tags=["trainData"])
-async def uploadTraining(file: UploadFile, req):
+async def uploadTraining(file: UploadFile):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created
         chatbot, to the Cloud Storage bucket. This endpoint should be called by the frontend, before
@@ -111,7 +112,7 @@ async def uploadTraining(file: UploadFile, req):
         by this endpoint.
 
         req: {
-            "username" : "User name of the user deleting the chatbot",
+            "username" : "Username of the user uploading the file",
             "chatbotID" : "UUID"
         }
     '''

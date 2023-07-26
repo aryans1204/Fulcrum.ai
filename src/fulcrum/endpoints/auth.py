@@ -11,7 +11,6 @@ import os
 from fulcrum.config.auth import oauth
 from fulcrum.db.user import User
 
-
 router = APIRouter(prefix="/auth")
 FULCRUM_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
 SRC_DIR = os.path.join(FULCRUM_DIR, os.pardir)
@@ -35,15 +34,26 @@ oauth.register(
 )
 
 
-def handle_registration(request: Request):
+def get_registration(request: Request):
     registered = False
     user = request.session.get("user")
-    username = dict(user).get('email')
-    userdb = User.objects(username=username)
-    if userdb:
-        registered = True
+    email = dict(user).get('email')
+    request.session["email"] = email
+    users = User.objects()
+    _id = None
+    if users:
+        userdb = User.objects(email=email)
+        print(userdb)
+        print(type(userdb))
+        if userdb:
+            userdb = json.loads(userdb.to_json())[0]
+            print(userdb)
+            registered = True
+            _id = userdb["_id"]['$oid']
+            request.session["userid"] = _id
 
-    return JSONResponse({"email": user.get("email"), registered: registered})
+            print("_id", _id)
+    return JSONResponse({"email": email, "id": _id, "registered": registered})
 
 
 @router.get('/login/google', tags=['authentication'])  # Tag it as "authentication" for our docs
@@ -54,7 +64,7 @@ async def login(request: Request):
         print("redirect_uri:", redirect_uri)
         return await oauth.google.authorize_redirect(request, redirect_uri)
     else:
-        return handle_registration(request)
+        return get_registration(request)
 
 
 @router.route('/auth/google', name="auth_google")
@@ -65,20 +75,18 @@ async def auth(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
         user = token.get('userinfo')
+        request.session["user"] = user
     except OAuthError as e:
         return {"error": e.error}
-    if user:
-        request.session['user'] = dict(user)
-        username = dict(user).get('email')
-        userdb = User.objects(username=username)
-        print("logged in")
 
-    return handle_registration(request)
+    return get_registration(request)
 
 
 @router.get('/logout', tags=['authentication'])  # Tag it as "authentication" for our docs
 async def logout(request: Request):
     # Remove the user
     request.session.pop('user', None)
+    request.session.pop('email', None)
+    request.session.pop('userid', None)
 
     return RedirectResponse(url='/')

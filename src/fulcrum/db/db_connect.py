@@ -1,5 +1,5 @@
 import mongoengine
 
-mongoengine.connect(db="test")
-
+db = mongoengine.connect(db="test")
+db.drop_database('test')
 
