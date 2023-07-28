@@ -3,6 +3,7 @@ import chromadb
 from chromadb import HttpClient
 from gcloud.pdfparser2 import parsePDF
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
+from langchain.embeddings import OpenAIEmbeddings
 
 def insertDB(file_path: str, username: str, chatbot_id: str):
     '''
@@ -15,21 +16,23 @@ def insertDB(file_path: str, username: str, chatbot_id: str):
                 model_name="text-embedding-ada-002"
             )
 
-    collection = client.get_or_create_collection(name=username+chatbot_id, embedding_function=openai_ef)
+    collection = client.get_or_create_collection(name=username+chatbot_id)
     ids = []
     texts = []
     metadatas = []
     cur_len = collection.count()
-
+    embeddings = OpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
     for c in chunks:
         cur_len += 1
         ids.append("id"+str(cur_len))
         texts.append(c)
         metadatas.append({str(cur_len): c})
-
+    
+    embeds = embeddings.embed_documents(texts)
     collection.add(
         documents=texts,
         metadatas=metadatas,
+        embeddings=embeds,
         ids=ids
     )
 
