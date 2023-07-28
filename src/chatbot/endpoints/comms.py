@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket
-from gcloud.gptutils import queryGPT
+from src.gcloud.gptutils import queryGPT
 
 router = APIRouter()
 
