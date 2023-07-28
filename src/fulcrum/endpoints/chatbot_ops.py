@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from mongoengine import *
 from fastapi import APIRouter, UploadFile, File
 
-from fulcrum.auth.user import validate_user
+from fulcrum.auth.auth_jwt import JWTBearer
 from fulcrum.db.chatbot_config import Chatbot
 from fulcrum.db.user import User
 from gcloud.serverless import deployChatbot, deleteChatbot
@@ -13,8 +13,7 @@ from gcloud.bucket_storage import deleteBucket, createBucket, uploadObj
 import shutil
 import os
 from starlette.requests import Request
-router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(validate_user)])
-
+router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(JWTBearer())])
 
 
 @router.get("/getChatbot/{username}/{chatbotID}", tags=["getChatbot"])

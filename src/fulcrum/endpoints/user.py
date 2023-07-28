@@ -8,6 +8,7 @@ from pydantic import EmailStr
 from starlette.responses import JSONResponse
 
 from fulcrum.config.auth import oauth
+from fulcrum.endpoints.auth import get_token
 from fulcrum.models.user import CreateUser
 from fulcrum.db.user import User
 user_router = APIRouter()
@@ -26,10 +27,11 @@ async def get_users():
     """
     return
 
+
 @router.post("/register", tags=["register_user"])
 async def register(email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
     """
         Endpoint for first time user registration.
     """
     user = User(email=email, name=name).save()
-    return JSONResponse({"User": user.to_json()})
+    return get_token({'email': email})

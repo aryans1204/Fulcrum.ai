@@ -7,9 +7,9 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 import time
 
-from src.fulcrum.auth.user import validate_user
+from fulcrum.auth.auth_jwt import JWTBearer
 
-router = APIRouter(prefix="/api/docs", dependencies=[Depends(validate_user)]) # This dependency protects our endpoint!
+router = APIRouter(prefix="/api/docs", dependencies=[Depends(JWTBearer())]) # This dependency protects our endpoint!
 
 """@router.route('/openapi.json')
 async def get_open_api_endpoint(request: Request, user: Optional[dict] = Depends(get_user)):  # This dependency protects our endpoint!
