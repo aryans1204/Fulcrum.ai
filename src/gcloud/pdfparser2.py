@@ -27,8 +27,6 @@ def parsePDF(
     )
 
     text = document.text
-    print(f"Full document text: {text}\n")
-    print(f"There are {len(document.pages)} page(s) in this document.\n")
     chunks = []
     for page in document.pages:
         text_res = create_text_from_blocks(page.blocks, text)
