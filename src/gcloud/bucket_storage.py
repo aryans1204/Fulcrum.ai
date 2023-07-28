@@ -1,6 +1,7 @@
 from google.cloud import storage
 import os
 
+
 def createBucket(bucket_name: str):
     '''
         Utility for creating a new bucket in GCP Cloud Storage based on a given name
@@ -10,6 +11,7 @@ def createBucket(bucket_name: str):
     bucket.storage_class = 'STANDARD'
     new_bucket = storage_client.create_bucket(bucket, location=os.environ["LOCATION"])
     return new_bucket.name
+
 
 def deleteObj(bucket_name: str, blob_name: str):
     client = storage.Client()
@@ -27,6 +29,7 @@ def deleteBucket(bucket_name: str):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     bucket.delete(force=True)
+
 
 def uploadObj(bucket_name, file_path, fileName):
     storage_client = storage.Client()

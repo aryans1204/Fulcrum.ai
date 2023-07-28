@@ -3,3 +3,7 @@ google-cloud-cli-*
 __py*
 env.sh
 .env
+src/.DS_Store
+.DS_Store
+.idea/
+dev/
