@@ -5,29 +5,29 @@ from langchain.vectorstores.base import VectorStoreRetriever
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 import chromadb
-from chromadb.config import Settings
+from chromadb import HttpClient
+
 from fulcrum.models.chatbot import Chatbot
 import os
 import ctypes
 
 def initLLM():
     llm = OpenAIChat(
-        temperature=os.environ["temperature"],
+        temperature=int(os.environ["temperature"]),
         model_name=os.environ["gpt_model"],
-        top_p=os.environ["top_p"],
+        top_p=float(os.environ["top_p"]),
         openai_api_key=os.environ["OPENAI_API_KEY"]
     )
+    global __chatbot__
     __chatbot__ = llm
 
-    client = chromadb.Client(
-        Settings(
-            chroma_api_impl="rest",
-            chroma_server_host=os.environ["chroma_url"],
-            chroma_server_http_port=os.environ["chroma_port"]
-        )
-    )
+    client = HttpClient(host=os.environ["chroma_url"], port=os.environ["chroma_port"])
+    openai_ef = OpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
 
-    retriever = Chroma(collection_name=os.environ["chroma_index"], client=client)
+    vectordb = Chroma(collection_name=os.environ["chroma_index"], client=client, embedding_function=openai_ef)
+
+    retriever = VectorStoreRetriever(vectorstore=vectordb)
+    global __chain__
     __chain__ = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
@@ -42,7 +42,7 @@ def queryGPT(msg: str) -> str:
         Don't ask the user if you need to find out the answer. \
     """
 
-    if __chain__ in globals():
+    if "__chain__" in globals():
         qa = ctypes.cast(id(globals()["__chain__"]), ctypes.py_object).value
         ans = qa({"query":"Question: " + msg + PROMPT})
         return ans["result"]

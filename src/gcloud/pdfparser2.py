@@ -27,8 +27,6 @@ def parsePDF(
     )
 
     text = document.text
-    print(f"Full document text: {text}\n")
-    print(f"There are {len(document.pages)} page(s) in this document.\n")
     chunks = []
     for page in document.pages:
         text_res = create_text_from_blocks(page.blocks, text)
@@ -84,13 +82,18 @@ def create_text_from_blocks(blocks: Sequence[documentai.Document.Page.Block], te
 def chunk_token_limit(chunks: Sequence[str]) -> Sequence[str]:
     res = []
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-    for c in chunks:
+    for i in range(len(chunks)-1):
+        c = chunks[i]
+        cn = chunks[i+1]
         tokens = len(tokenizer.encode(c))
+        tokens2 = len(tokenizer.encode(cn))
         if tokens > 4096:
             c1 = c[:len(c)/2]
             c2 = c[len(c)/2:]
             res.append(c1)
             res.append(c2)
+        elif tokens + tokens2 <= 4096:
+            res.append(c+cn)
         else:
             res.append(c)
 
