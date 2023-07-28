@@ -18,11 +18,6 @@ ROOT_DIR = os.path.join(SRC_DIR, os.pardir)
 CONFIG_FILE = os.path.abspath(os.path.join(os.path.abspath(ROOT_DIR), ".env"))
 print("config_file:", CONFIG_FILE)
 
-# Initialize our OAuth instance from the client ID and client secret specified in our .env file
-config = Config(CONFIG_FILE)
-oauth = OAuth(config)
-
-print("config file values:", config.file_values)
 
 CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 oauth.register(
