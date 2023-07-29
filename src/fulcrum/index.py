@@ -11,6 +11,7 @@ from fulcrum.endpoints.chatbot_ops import router as chat_router
 from fulcrum.endpoints.user import router as user_router
 from fulcrum.endpoints.auth import router as auth_router
 from fulcrum.endpoints.docs import router as docs_router
+from fulcrum.endpoints.faq import router as faq_router
 from fulcrum.auth.auth_jwt import JWTBearer
 
 mongoengine.connect(host=os.environ["MONGODB_URL"])
@@ -27,7 +28,7 @@ oauth.register(
     }
 )
 
-routers = [auth_router, chat_router, user_router, docs_router]
+routers = [auth_router, chat_router, user_router, docs_router, faq_router]
 
 app = FastAPI()
 for router in routers:
