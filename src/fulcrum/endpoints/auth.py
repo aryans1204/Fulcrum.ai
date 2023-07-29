@@ -5,6 +5,7 @@ from authlib.integrations.base_client import OAuthError
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fulcrum.auth.auth_jwt import create_access_token, jsonify_jwt
 
 from authlib.integrations.starlette_client import OAuth
 import os
@@ -29,13 +30,12 @@ oauth.register(
 )
 
 
-def get_registration(request: Request):
+def get_token(user: dict):
     registered = False
-    user = request.session.get("user")
     email = dict(user).get('email')
-    request.session["email"] = email
     users = User.objects()
     _id = None
+    name = None
     if users:
         userdb = User.objects(email=email)
         print(userdb)
@@ -45,10 +45,10 @@ def get_registration(request: Request):
             print(userdb)
             registered = True
             _id = userdb["_id"]['$oid']
-            request.session["userid"] = _id
-
+            name = userdb["name"]
             print("_id", _id)
-    return JSONResponse({"email": email, "id": _id, "registered": registered})
+    data = {"email": email, "id": _id, "name": name, "registered": registered}
+    return JSONResponse(jsonify_jwt(create_access_token(data=data)))
 
 
 @router.get('/login/google', tags=['authentication'])  # Tag it as "authentication" for our docs
@@ -59,7 +59,7 @@ async def login(request: Request):
         print("redirect_uri:", redirect_uri)
         return await oauth.google.authorize_redirect(request, redirect_uri)
     else:
-        return get_registration(request)
+        return RedirectResponse("/")
 
 
 @router.route('/auth/google', name="auth_google")
@@ -70,11 +70,13 @@ async def auth(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
         user = token.get('userinfo')
-        request.session["user"] = user
     except OAuthError as e:
-        return {"error": e.error}
-
-    return get_registration(request)
+        print("oauth_error:", e)
+        print("clientID:", os.environ.get('GOOGLE_CLIENT_ID'))
+        print("clientSecret:", os.environ.get('GOOGLE_CLIENT_SECRET'))
+        raise HTTPException(status_code=500, detail=str(e))
+    print("testing...")
+    return get_token(user)
 
 
 @router.get('/logout', tags=['authentication'])  # Tag it as "authentication" for our docs

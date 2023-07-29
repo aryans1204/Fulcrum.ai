@@ -11,7 +11,7 @@ if GOOGLE_CLIENT_ID is None or GOOGLE_CLIENT_SECRET is None:
 
 config_data = {'GOOGLE_CLIENT_ID': GOOGLE_CLIENT_ID, 'GOOGLE_CLIENT_SECRET': GOOGLE_CLIENT_SECRET}
 starlette_config = Config(environ=config_data)
-
+print(f"clientID:{config_data['GOOGLE_CLIENT_ID']}")
 oauth = OAuth(starlette_config)
 oauth.register(
     name='google',
