@@ -1,9 +1,11 @@
 import datetime
 from typing import Dict, Any, List, Annotated
 
+from bson import ObjectId
 from fastapi.params import Depends
 from mongoengine import *
 from fastapi import APIRouter, UploadFile, File, Form
+from pydantic import EmailStr
 
 from fulcrum.auth.auth_jwt import JWTBearer
 from fulcrum.db.chatbot_config import Chatbot
@@ -117,31 +119,34 @@ async def delete_chatbot(userid: str, chatbot_id: str):
 
 
 @router.post("/uploadTrainingData", tags=["trainData"])
-async def uploadTraining(file: UploadFile, userid: Annotated[str, Form()], chatbotID: Annotated[str, Form()]):
+async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()], chatbotID: Annotated[str, Form()]):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created
         chatbot, to the Cloud Storage bucket. This endpoint should be called by the frontend, before
         createChatbot is called, since createChatbot will rely on the created Cloud Storage bucket
         by this endpoint.
 
-        req: {
-            "username" : "Username of the user uploading the file",
-            "chatbotID" : "UUID"
-        }
+        "email" : "email of the user uploading the file",
+        "chatbotID" : "UUID"
     '''
     try:
-        os.mkdir("images")
+        if not os.path.isdir("images"):
+            os.mkdir("images")
     except Exception as e:
+        print(e)
         return {"msg": "Failure", "error": e}
 
     file_path = os.getcwd() + "/images" + file.filename.replace(" ", "-")
     with open(file_path, "wb") as f:
         f.write(file.file.read())
         f.close()
+    userid = str(User.objects(email=email)[0].userid)
+    print('userid:', userid)
     try:
         createBucket(userid + chatbotID)
         uploadObj(userid + chatbotID, file_path, userid + chatbotID + ".pdf")
         insertDB(file_path, userid, chatbotID)
         return {"msg": "Success", "filename": file.filename}
     except Exception as e:
+        print(type(e), e)
         return {"msg": "Failure", "error": e}
