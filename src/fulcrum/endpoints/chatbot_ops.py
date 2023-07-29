@@ -1,4 +1,5 @@
-from typing import Dict, Any, List
+import datetime
+from typing import Dict, Any, List, Annotated
 
 from fastapi.params import Depends
 from mongoengine import *
@@ -17,7 +18,7 @@ from starlette.requests import Request
 router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(JWTBearer())])
 
 
-@router.get("/api/chatbot/getChatbot/{username}/{chatbotID}")
+@router.get("/getChatbot/{username}/{chatbotID}")
 async def giveEndpoint(username: str, chatbotID: str) -> dict:
     """
         Endpoint to get the Cloud Run deployment URL of a given chatbot based on its ID.
@@ -27,20 +28,33 @@ async def giveEndpoint(username: str, chatbotID: str) -> dict:
     return {"url": chatbot.deployedURL}
 
 
-@router.get("/api/chatbot/getChatbots/{username}", tags=["initChatbot"])
-async def init_chatbot(username: str) -> dict:
+@router.get("/getChatbots/{userid}", tags=["initChatbot"])
+async def init_chatbot(userid: str) -> dict:
     """
         initialize chatbot endpoint is called from the Fulcrum frontend each time
         a user accesses a previously created chatbot. The endpoint is responsible for
-        103: User token limit exceeded, cannot access chatbot due to OpenAI usage limits
+        calling the Cloud Run macros, and initializing the serverless chatbot on a container
+        on Cloud Run.
+        req: {
+            "username" : "User name of the user to run the MongoDB query",
+            "chatbotID" : "frontend can use any RNG or UUID generator to create this, as long
+            as its consistent in the MongoDB data schemas"
+        }
+        res: {
+            "endpointURL" : "URL for the Cloud Run chatbot, to call chatbot endpoints from the server",
+            "error": {None if everything works out, otherwise one of}:
+            101: GCloud error
+            102: Bad MongoDB query error
+            103: User token limit exceeded, cannot access chatbot due to OpenAI usage limits
+        }
     """
-    user = User.objects(username=username)
+    user = User.objects(userid=userid)
     ids = [c.chatbot_id for c in user.config]
     return {"chatbots": ids}
 
 
 @router.post("/createChatbot", tags=["createChatbot"], response_model=None)
-async def create_chatbot(username: str, chatbotID: str) -> dict[str, str]:
+async def create_chatbot(userid: Annotated[str, "user id"]) -> dict[str, str]:
     '''
         Create a new chatbot for a user. This endpoint is called by the frontend the first time 
         a user wishes to create a chatbot. Frontend should first call the upload_file endpoint.
@@ -61,10 +75,11 @@ async def create_chatbot(username: str, chatbotID: str) -> dict[str, str]:
             103: User chatbot limit exceeded, user has created more chatbots than are allowed.
         }
     '''
-    url = deployChatbot({"gcs_bucket": chatbotID + username, "chatbot_id": chatbotID}, username)
-    user = User.objects(username=username)
+    chatbotID = str(datetime.datetime.now().timestamp()).strip('.')
+    url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
+    user = User.objects.get_queryset(userid=userid)
     bots = user.config
-    chatbot = Chatbot(gcs_bucket=chatbotID + username, chatbot_id=chatbotID)
+    chatbot = Chatbot(gcs_bucket=chatbotID + userid, chatbot_id=chatbotID)
     bots.append(chatbot)
     chatbot.save()
     user.config = bots
@@ -73,8 +88,8 @@ async def create_chatbot(username: str, chatbotID: str) -> dict[str, str]:
     return {"endpointURL": url}
 
 
-@router.delete("/deleteChatbot/{username}/{chatbot_id}", tags=["deleteChatbot"])
-async def delete_chatbot(username: str, chatbot_id: str):
+@router.delete("/deleteChatbot/{userid}/{chatbot_id}", tags=["deleteChatbot"])
+async def delete_chatbot(userid: str, chatbot_id: str):
     """
         Delete an existing chatbot for user. This endpoit is called by the frontend whenever
         user wants to delete an existing chatbot. The endpoint performs cleanup of Google Cloud
@@ -93,15 +108,15 @@ async def delete_chatbot(username: str, chatbot_id: str):
            102: Bad MongoDB error
        }
     """
-    deleteChatbot(username + chatbot_id)
+    deleteChatbot(userid + chatbot_id)
     chatbot = Chatbot.objects(chatbot_id=chatbot_id)
     chatbot.delete()
-    deleteBucket(username + chatbot_id)
-    deleteDB(username, chatbot_id)
+    deleteBucket(userid + chatbot_id)
+    deleteDB(userid, chatbot_id)
     return {"msg": "Success"}
 
 
-@router.post("/api/chatbot/uploadTrainingData", tags=["trainData"])
+@router.post("/uploadTrainingData", tags=["trainData"])
 async def uploadTraining(file: UploadFile, req):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created
