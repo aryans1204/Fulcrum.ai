@@ -3,7 +3,7 @@ from typing import Dict, Any, List, Annotated
 
 from fastapi.params import Depends
 from mongoengine import *
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Form
 
 from fulcrum.auth.auth_jwt import JWTBearer
 from fulcrum.db.chatbot_config import Chatbot
@@ -117,7 +117,7 @@ async def delete_chatbot(userid: str, chatbot_id: str):
 
 
 @router.post("/uploadTrainingData", tags=["trainData"])
-async def uploadTraining(file: UploadFile, req):
+async def uploadTraining(file: UploadFile, userid: Annotated[str, Form()], chatbotID: Annotated[str, Form()]):
     '''
         Endpoint to upload a file, which forms part of the training data of the new created
         chatbot, to the Cloud Storage bucket. This endpoint should be called by the frontend, before
@@ -139,9 +139,9 @@ async def uploadTraining(file: UploadFile, req):
         f.write(file.file.read())
         f.close()
     try:
-        createBucket(req.username + req.chatbotID)
-        uploadObj(req.username + req.chatbotID, file_path, req.username + req.chatbotID + ".pdf")
-        insertDB(file_path, req.username, req.chatbotID)
+        createBucket(userid + chatbotID)
+        uploadObj(userid + chatbotID, file_path, userid + chatbotID + ".pdf")
+        insertDB(file_path, userid, chatbotID)
         return {"msg": "Success", "filename": file.filename}
     except Exception as e:
         return {"msg": "Failure", "error": e}
