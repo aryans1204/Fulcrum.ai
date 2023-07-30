@@ -29,7 +29,7 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     yaml.dump(d, file)
     file.close()
     print("bp1")
-    subprocess.run(["gcloud", "run", "services", 
+    subprocess.run(["gcloud", "run", "services",
                                  "replace", f"{os.environ['YAML_DIR']}/services_temp.yaml"])
     print("bp2")
     service = str(d["metadata"]["name"])
@@ -41,7 +41,7 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     subprocess.run(["rm", f"{os.environ['YAML_DIR']}/services_temp.yaml"])
     return output[0]
 
+
 def deleteChatbot(service_name: str):
-    query = f"gcloud run services delete {service_name}"
-    subprocess.run(query)
+    subprocess.run(["gcloud", "run", "services", "delete", f"{service_name}-y"])
 

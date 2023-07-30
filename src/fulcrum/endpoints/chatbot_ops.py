@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Dict, Any, List, Annotated
 
 from bson import ObjectId
@@ -25,14 +26,25 @@ async def getAllChatbots():
     return Chatbot.objects()
 
 
-@router.get("/getChatbot/{username}/{chatbotID}")
+'''@router.get("/getChatbot/{username}/{chatbotID}")
 async def giveEndpoint(username: str, chatbotID: str) -> dict:
     """
         Endpoint to get the Cloud Run deployment URL of a given chatbot based on its ID.
     """
-    chatbot = Chatbot.objects(chatbot_id=chatbotID)
+    chatbot = Chatbot.objects(chatbot_id=chatbotID)[0]
 
-    return {"url": chatbot.deployedURL}
+    return {"url": chatbot.deployedURL}'''
+
+
+@router.get("/getChatbot/{username}/{chatbotID}")
+async def getChatbotDetails(username: str, chatbotID: str) -> dict:
+    """
+        Endpoint to get the Chatbot details, including Cloud Run deployment URL of a given chatbot based on its ID.
+    """
+    chatbot = Chatbot.objects(chatbot_id=chatbotID)[0].to_json()
+    chatbot = json.loads(chatbot)
+
+    return chatbot
 
 
 @router.get("/getChatbots/{userid}", tags=["initChatbot"])
@@ -56,8 +68,11 @@ async def init_chatbot(userid: str) -> dict:
         }
     """
     user = User.objects(userid=userid)
-    print("USERRRR:", user)
-    ids = [c.chatbot_id for c in user[0].config]
+    print("USERRRR:", user.to_json())
+    if user:
+        ids = [c.chatbot_id for c in user[0].chatbotConfigs]
+    else:
+        ids = []
     return {"chatbots": ids}
 
 
