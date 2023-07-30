@@ -45,7 +45,7 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=100)
     to_encode.update({'exp': expire})
     encoded_jwt = jwt.encode(to_encode, API_SECRET_KEY, algorithm=API_ALGORITHM)
     return encoded_jwt
@@ -53,7 +53,7 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
 
 # Create token for an email
 def create_token(data: dict):
-    access_token_expires = timedelta(minutes=API_ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=100)
     access_token = create_access_token(data=data, expires_delta=access_token_expires)
     return access_token
 
@@ -88,10 +88,12 @@ class JWTBearer(HTTPBearer):
             payload = decodeJWT(jwt_token)
         except:
             payload = None
-
+        registered = None
         if payload:
             token_is_valid = True
-        return token_is_valid, payload["registered"]
+            registered = payload["registered"]
+
+        return token_is_valid, registered
 
 
 def jsonify_jwt(token):
