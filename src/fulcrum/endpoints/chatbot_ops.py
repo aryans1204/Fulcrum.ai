@@ -24,6 +24,9 @@ router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=
 
 @router.get("/get/all")
 async def getAllChatbots():
+    """
+        Is a development endpoint
+    """
     return Chatbot.objects().to_json()
 
 
@@ -74,8 +77,10 @@ async def init_chatbot(userid: str) -> dict:
     user = User.objects(userid=userid)
     if user:
         ids = [c.chatbot_id for c in user[0].chatbotConfigs]
+        print("ids:", ids)
         return {"chatbots": ids}
     else:
+        print("error, user does not exist")
         return {"error": "No such User exists"}
 
 
@@ -142,9 +147,16 @@ async def delete_chatbot(userid: str, chatbot_id: str):
            102: Bad MongoDB error
        }
     """
+    user = User.objects(userid=userid)
+    if user:
+        user = user[0]
+        user.update(pull__chatbotConfigs=chatbot_id)
+    else:
+        return {"error": "user not found"}
     deleteChatbot(userid + chatbot_id)
     chatbot = Chatbot.objects(chatbot_id=chatbot_id)
     chatbot.delete()
+
     deleteBucket(userid + chatbot_id)
     deleteDB(userid, chatbot_id)
     return {"msg": "Success"}
