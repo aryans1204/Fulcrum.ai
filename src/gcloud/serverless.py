@@ -43,5 +43,5 @@ def deployChatbot(chatbot: dict, username: str) -> str:
 
 
 def deleteChatbot(service_name: str):
-    subprocess.run(["gcloud", "run", "services", "delete", f"{service_name}-y"])
+    subprocess.run(["gcloud", "run", "services", "delete -q", f"{service_name}"])
 
