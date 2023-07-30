@@ -150,7 +150,9 @@ async def delete_chatbot(userid: str, chatbot_id: str):
     user = User.objects(userid=userid)
     if user:
         user = user[0]
-        user.update(pull__chatbotConfigs=chatbot_id)
+        chatbotRefs = user.chatbotConfigs
+        print("chatbotRefs:", chatbotRefs)
+        print("type chatbotRefs:", type(chatbotRefs))
     else:
         return {"error": "user not found"}
     deleteChatbot(userid + chatbot_id)
