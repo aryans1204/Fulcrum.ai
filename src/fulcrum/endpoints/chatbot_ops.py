@@ -1,5 +1,6 @@
 import datetime
 import json
+import uuid
 from typing import Dict, Any, List, Annotated
 
 from bson import ObjectId
@@ -36,15 +37,18 @@ async def giveEndpoint(username: str, chatbotID: str) -> dict:
     return {"url": chatbot.deployedURL}'''
 
 
-@router.get("/getChatbot/{username}/{chatbotID}")
-async def getChatbotDetails(username: str, chatbotID: str) -> dict:
+@router.get("/getChatbot/{chatbotID}")
+async def getChatbotDetails(chatbotID: str) -> dict:
     """
         Endpoint to get the Chatbot details, including Cloud Run deployment URL of a given chatbot based on its ID.
     """
-    chatbot = Chatbot.objects(chatbot_id=chatbotID)[0].to_json()
-    chatbot = json.loads(chatbot)
+    try:
+      chatbot = Chatbot.objects(chatbot_id=chatbotID)[0].to_json()
+      chatbot = json.loads(chatbot)
 
-    return chatbot
+      return chatbot
+    except:
+      return {"error": "No such chatbotID exists"}
 
 
 @router.get("/getChatbots/{userid}", tags=["initChatbot"])
@@ -68,12 +72,11 @@ async def init_chatbot(userid: str) -> dict:
         }
     """
     user = User.objects(userid=userid)
-    print("USERRRR:", user.to_json())
     if user:
         ids = [c.chatbot_id for c in user[0].chatbotConfigs]
+        return {"chatbots": ids}
     else:
-        ids = []
-    return {"chatbots": ids}
+        return {"error": "No such User exists"}
 
 
 @router.post("/createChatbot", tags=["createChatbot"], response_model=None)
@@ -98,7 +101,6 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
             103: User chatbot limit exceeded, user has created more chatbots than are allowed.
         }
     '''
-
     print("chatbotID:", chatbotID)
     url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
     user = User.objects(userid=userid)[0]
@@ -107,7 +109,11 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
     chromadb_index = userid + chatbotID
     chatbot = Chatbot(chatbot_id=chatbotID, chromadb_index=chromadb_index, deployedURL=url,
                       personality=personality, dataFileName=dataFileName, gcs_bucket=chatbotID + userid)
-
+    """chatbotID = str(uuid.uuid4())
+    url = deployChatbot({"gcs_bucket":userid+chatbotID, "chatbot_id": chatbotID}, userid)
+    user = User.objects.get_queryset(userid=userid)
+    bots = user.config
+    chatbot = Chatbot(gcs_bucket=userid+chatbot_id, chatbot_id=chatbotID)"""
     bots.append(chatbot)
     chatbot.save()
     user.chatbotConfigs = bots
