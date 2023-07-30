@@ -149,20 +149,15 @@ async def delete_chatbot(userid: str, chatbot_id: str):
     """
     user = User.objects(userid=userid)
     if user:
-        chatbotRefs = user.chatbotConfigs
-        print("before chatbotRefs:", chatbotRefs)
-        user.update(pull__chatbotConfigs=chatbot_id)
-        chatbotRefs = user.chatbotConfigs
-        print("after chatbotRefs:", chatbotRefs)
+        chatbot = Chatbot.objects(chatbot_id=chatbot_id)[0]
+        chatbot.delete()
+        deleteChatbot(userid + chatbot_id)
+
+        deleteBucket(userid + chatbot_id)
+        deleteDB(userid, chatbot_id)
+        return {"msg": "Success"}
     else:
         return {"error": "user not found"}
-    deleteChatbot(userid + chatbot_id)
-    chatbot = Chatbot.objects(chatbot_id=chatbot_id)
-    chatbot.delete()
-
-    deleteBucket(userid + chatbot_id)
-    deleteDB(userid, chatbot_id)
-    return {"msg": "Success"}
 
 
 @router.post("/uploadTrainingData", tags=["trainData"])
