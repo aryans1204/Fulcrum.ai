@@ -84,7 +84,7 @@ async def create_chatbot(userid: Annotated[str, "user id"]) -> dict[str, str]:
         }
     '''
     chatbotID = str(uuid.uuid4())
-    url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
+    url = deployChatbot({"gcs_bucket":userid+chatbotID, "chatbot_id": chatbotID}, userid)
     user = User.objects.get_queryset(userid=userid)
     bots = user.config
     chatbot = Chatbot(gcs_bucket=userid+chatbot_id, chatbot_id=chatbotID)
