@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Dict, Any, List, Annotated
 
 from bson import ObjectId
@@ -25,9 +26,11 @@ async def giveEndpoint(username: str, chatbotID: str) -> dict:
     """
         Endpoint to get the Cloud Run deployment URL of a given chatbot based on its ID.
     """
-    chatbot = Chatbot.objects(chatbot_id=chatbotID)
-
-    return {"url": chatbot.deployedURL}
+    try:
+        chatbot = Chatbot.objects(chatbot_id=chatbotID)
+        return {"url": chatbot.deployedURL}
+    except:
+        return {"error": "No such chatbotID exists"}
 
 
 @router.get("/getChatbots/{userid}", tags=["initChatbot"])
@@ -50,9 +53,12 @@ async def init_chatbot(userid: str) -> dict:
             103: User token limit exceeded, cannot access chatbot due to OpenAI usage limits
         }
     """
-    user = User.objects(userid=userid)
-    ids = [c.chatbot_id for c in user.config]
-    return {"chatbots": ids}
+    try:
+        user = User.objects(userid=userid)
+        ids = [c.chatbot_id for c in user.config]
+        return {"chatbots": ids}
+    except:
+        return {"error": "No such User exists"}
 
 
 @router.post("/createChatbot", tags=["createChatbot"], response_model=None)
@@ -77,11 +83,11 @@ async def create_chatbot(userid: Annotated[str, "user id"]) -> dict[str, str]:
             103: User chatbot limit exceeded, user has created more chatbots than are allowed.
         }
     '''
-    chatbotID = str(datetime.datetime.now().timestamp()).strip('.')
+    chatbotID = str(uuid.uuid4())
     url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
     user = User.objects.get_queryset(userid=userid)
     bots = user.config
-    chatbot = Chatbot(gcs_bucket=chatbotID + userid, chatbot_id=chatbotID)
+    chatbot = Chatbot(gcs_bucket=userid+chatbot_id, chatbot_id=chatbotID)
     bots.append(chatbot)
     chatbot.save()
     user.config = bots
