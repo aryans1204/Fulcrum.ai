@@ -73,7 +73,7 @@ async def login(request: Request):
     if request.session.get("user") is None:
         # Redirect Google OAuth back to our application
         redirect_uri = request.url_for('auth_google')
-        print("redirect_uri:", redirect_uri)
+        #print("redirect_uri:", redirect_uri)
         return await oauth.google.authorize_redirect(request, redirect_uri)
     else:
         return RedirectResponse(CLIENT_BASE_URL)
@@ -81,7 +81,7 @@ async def login(request: Request):
 
 @router.route('/auth/google', name="auth_google")
 async def auth(request: Request):
-    print("request.session:", json.dumps(request.session, indent=4))
+    #print("request.session:", json.dumps(request.session, indent=4))
     registered = False
     # Perform Google OAuth
     try:
@@ -96,13 +96,13 @@ async def auth(request: Request):
             if userdb['email'] == user.email:
                 isRegistered = True
         if not isRegistered:
-            print('Creating new User')
+            #print('Creating new User')
             User(email=user.email, name=user.name).save()
 
     except OAuthError as e:
-        print("oauth_error:", e)
-        print("clientID:", os.environ.get('GOOGLE_CLIENT_ID'))
-        print("clientSecret:", os.environ.get('GOOGLE_CLIENT_SECRET'))
+        #print("oauth_error:", e)
+        #print("clientID:", os.environ.get('GOOGLE_CLIENT_ID'))
+        #print("clientSecret:", os.environ.get('GOOGLE_CLIENT_SECRET'))
         raise HTTPException(status_code=500, detail=str(e))
 
     access_token = get_token(user)['access_token']

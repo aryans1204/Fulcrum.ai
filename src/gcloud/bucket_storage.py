@@ -1,3 +1,4 @@
+import google
 from google.cloud import storage
 import os
 
@@ -9,8 +10,13 @@ def createBucket(bucket_name: str):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     bucket.storage_class = 'STANDARD'
-    new_bucket = storage_client.create_bucket(bucket, location=os.environ["LOCATION"])
-    return new_bucket.name
+    try:
+        new_bucket = storage_client.create_bucket(bucket, location=os.environ["LOCATION"])
+        return new_bucket.name
+    except google.api_core.exceptions.Conflict:
+        #print("bucket exists")
+        return bucket_name
+
 
 
 def deleteObj(bucket_name: str, blob_name: str):
