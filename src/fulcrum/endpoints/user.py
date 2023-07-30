@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Annotated
 
 from authlib.integrations.base_client import OAuthError
@@ -25,7 +26,18 @@ async def get_users():
         purposes.
 
     """
-    return
+    return User.objects().to_json()
+
+
+@router.get("/email/{email}", tags=["get_user"])
+async def get_user_by_email(email: str):
+    '''
+        Endpoint to get user based on user's email
+    '''
+    users = json.loads(User.objects(email=email).to_json())
+    return users[0] if users else None
+
+# Note: currently Users are automatically created during the login process if they are not registered
 
 
 @router.post("/register", tags=["register_user"])

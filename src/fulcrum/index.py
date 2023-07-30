@@ -16,7 +16,8 @@ from fulcrum.auth.auth_jwt import JWTBearer
 
 mongoengine.connect(host=os.environ["MONGODB_URL"])
 
-origins = ["*"]
+# TODO: add frontend production url
+origins = ["http://localhost:3000"]
 
 config = Config('.env')
 oauth = OAuth(config)
@@ -24,20 +25,11 @@ oauth.register(
     name='google',
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
-        "scope":"openid email profile"
+        "scope": "openid email profile"
     }
 )
 
-routers = [auth_router, chat_router, user_router, docs_router, faq_router]
-
 app = FastAPI()
-for router in routers:
-    app.include_router(router)
-
-app.add_middleware(
-    SessionMiddleware, 
-    secret_key=os.environ["SECRET_KEY"], 
-)
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,6 +39,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ["SECRET_KEY"],
+)
+
+routers = [auth_router, chat_router, user_router, docs_router, faq_router]
+for router in routers:
+    app.include_router(router)
+
 
 @app.get("/")
 async def main(request: Request):
@@ -55,5 +56,3 @@ async def main(request: Request):
         return {"message": "Hello Guest!!"}
     else:
         return {"message": f"Hello {user['name']}"}
-
-
