@@ -20,6 +20,11 @@ from starlette.requests import Request
 router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(JWTBearer())])
 
 
+@router.get("/get/all")
+async def getAllChatbots():
+    return Chatbot.objects()
+
+
 @router.get("/getChatbot/{username}/{chatbotID}")
 async def giveEndpoint(username: str, chatbotID: str) -> dict:
     """
@@ -51,12 +56,13 @@ async def init_chatbot(userid: str) -> dict:
         }
     """
     user = User.objects(userid=userid)
-    ids = [c.chatbot_id for c in user.config]
+    print("USERRRR:", user)
+    ids = [c.chatbot_id for c in user[0].config]
     return {"chatbots": ids}
 
 
 @router.post("/createChatbot", tags=["createChatbot"], response_model=None)
-async def create_chatbot(userid: Annotated[str, "user id"]) -> dict[str, str]:
+async def create_chatbot(userid: Annotated[str, Form()], personality: Annotated[str, Form()], dataFileName: Annotated[str, Form()]) -> dict[str, str]:
     '''
         Create a new chatbot for a user. This endpoint is called by the frontend the first time 
         a user wishes to create a chatbot. Frontend should first call the upload_file endpoint.
@@ -77,20 +83,25 @@ async def create_chatbot(userid: Annotated[str, "user id"]) -> dict[str, str]:
             103: User chatbot limit exceeded, user has created more chatbots than are allowed.
         }
     '''
-    chatbotID = str(datetime.datetime.now().timestamp()).strip('.')
+    chatbotID = str(datetime.datetime.now().timestamp()).replace('.', '')
+    print("chatbotID:", chatbotID)
     url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
-    user = User.objects.get_queryset(userid=userid)
-    bots = user.config
-    chatbot = Chatbot(gcs_bucket=chatbotID + userid, chatbot_id=chatbotID)
+    user = User.objects(userid=userid)[0]
+    print("user:", user.to_json())
+    bots = user.chatbotConfigs
+    chromadb_index = userid + chatbotID
+    chatbot = Chatbot(chatbot_id=chatbotID, chromadb_index=chromadb_index, deployedURL=url,
+                      personality=personality, dataFileName=dataFileName, gcs_bucket=chatbotID + userid)
+
     bots.append(chatbot)
     chatbot.save()
-    user.config = bots
+    user.chatbotConfigs = bots
     user.save()
 
     return {"endpointURL": url}
 
 
-@router.delete("/deleteChatbot/{userid}/{chatbot_id}", tags=["deleteChatbot"])
+@router.delete("/delete/{userid}/{chatbot_id}", tags=["deleteChatbot"])
 async def delete_chatbot(userid: str, chatbot_id: str):
     """
         Delete an existing chatbot for user. This endpoit is called by the frontend whenever
@@ -134,7 +145,7 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()], c
             os.mkdir("images")
     except Exception as e:
         print(e)
-        return {"msg": "Failure", "error": e}
+        return {"msg": "Failure1", "error": e}
 
     file_path = os.getcwd() + "/images" + file.filename.replace(" ", "-")
     with open(file_path, "wb") as f:
@@ -144,9 +155,11 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()], c
     print('userid:', userid)
     try:
         createBucket(userid + chatbotID)
+        print("created bucket")
         uploadObj(userid + chatbotID, file_path, userid + chatbotID + ".pdf")
+        print("uploaded object")
         insertDB(file_path, userid, chatbotID)
         return {"msg": "Success", "filename": file.filename}
     except Exception as e:
-        print(type(e), e)
-        return {"msg": "Failure", "error": e}
+        print("error2:", type(e), e)
+        return {"msg": "Failure2", "error": e}
