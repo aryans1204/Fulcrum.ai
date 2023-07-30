@@ -14,7 +14,7 @@ def createBucket(bucket_name: str):
         new_bucket = storage_client.create_bucket(bucket, location=os.environ["LOCATION"])
         return new_bucket.name
     except google.api_core.exceptions.Conflict:
-        print("bucket exists")
+        #print("bucket exists")
         return bucket_name
 
 

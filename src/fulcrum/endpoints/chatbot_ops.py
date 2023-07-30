@@ -102,7 +102,7 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
     print("chatbotID:", chatbotID)
     url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
     user = User.objects(userid=userid)[0]
-    print("user:", user.to_json())
+    #print("user:", user.to_json())
     bots = user.chatbotConfigs
     chromadb_index = userid + chatbotID
     chatbot = Chatbot(chatbot_id=chatbotID, chromadb_index=chromadb_index, deployedURL=url,
@@ -159,7 +159,7 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
         if not os.path.isdir("images"):
             os.mkdir("images")
     except Exception as e:
-        print(e)
+        #print(e)
         return {"msg": "Failure1", "error": e}
 
     file_path = os.getcwd() + "/images" + file.filename.replace(" ", "-")
@@ -167,15 +167,15 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
         f.write(file.file.read())
         f.close()
     userid = str(User.objects(email=email)[0].userid)
-    print('userid:', userid)
+    #print('userid:', userid)
     try:
         chatbotID = str(datetime.datetime.now().timestamp()).replace('.', '')
         createBucket(userid + chatbotID)
-        print("created bucket")
+        #print("created bucket")
         uploadObj(userid + chatbotID, file_path, userid + chatbotID + ".pdf")
-        print("uploaded object")
+        #print("uploaded object")
         insertDB(file_path, userid, chatbotID)
         return {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
     except Exception as e:
-        print("error2:", type(e), e)
+        #print("error2:", type(e), e)
         return {"msg": "Failure2", "error": e}

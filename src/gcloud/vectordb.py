@@ -9,10 +9,10 @@ def insertDB(file_path: str, username: str, chatbot_id: str):
     '''
         Utility to insert a PDF into the ChromaDB database as Sentence transformer vectors
     '''
-    print("inserting db...")
+    #print("inserting db...")
     chunks = parsePDF(file_path)
     client = HttpClient(host=os.environ["CHROMA_URL"], port=os.environ["CHROMA_PORT"])
-    print("chroma_url:", f'{os.environ["CHROMA_URL"]}:{os.environ["CHROMA_PORT"]}')
+    #print("chroma_url:", f'{os.environ["CHROMA_URL"]}:{os.environ["CHROMA_PORT"]}')
     openai_ef = OpenAIEmbeddingFunction(
                 api_key=os.environ["OPENAI_API_KEY"],
                 model_name="text-embedding-ada-002"
@@ -37,6 +37,7 @@ def insertDB(file_path: str, username: str, chatbot_id: str):
         embeddings=embeds,
         ids=ids
     )
+    #print("inserted db")
 
 def deleteDB(username: str, chatbot_id: str):
     '''

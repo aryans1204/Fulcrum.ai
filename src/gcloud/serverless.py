@@ -28,17 +28,18 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     file = open(f"{os.environ['YAML_DIR']}/services_temp.yaml", "w")
     yaml.dump(d, file)
     file.close()
-    print("bp1")
+    #print("bp1")
     subprocess.run(["gcloud", "run", "services",
                                  "replace", f"{os.environ['YAML_DIR']}/services_temp.yaml"])
-    print("bp2")
+    #print("bp2")
     service = str(d["metadata"]["name"])
-    print("service:", service)
-    print("len svc:", len(service))
+    #print("service:", service)
+    #print("len svc:", len(service))
     output = subprocess.run(["gcloud", "run", "services", "describe", f"{service}"], capture_output=True).stdout
-    print("bp3")
+    #print("bp3")
     output = re.findall("https.*app", str(output))
     subprocess.run(["rm", f"{os.environ['YAML_DIR']}/services_temp.yaml"])
+    #print("output:", output)
     return output[0]
 
 
