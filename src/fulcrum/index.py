@@ -1,4 +1,6 @@
+import firebase_admin
 from authlib.integrations.starlette_client import OAuth
+from firebase_admin import credentials
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
@@ -47,6 +49,10 @@ app.add_middleware(
 routers = [auth_router, chat_router, user_router, docs_router, faq_router]
 for router in routers:
     app.include_router(router)
+
+cred = credentials.Certificate(os.environ["GOOGLE_APPLICATION_CREDENTIALS"])
+default_app = firebase_admin.initialize_app(cred)
+
 
 
 @app.get("/")

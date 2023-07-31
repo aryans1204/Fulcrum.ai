@@ -1,7 +1,11 @@
 import json
+import warnings
 from typing import Optional, List
 from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from authlib.integrations.base_client import OAuthError
+from firebase_admin.auth import get_user, UserNotFoundError, create_user, verify_id_token, InvalidIdTokenError, \
+    ExpiredIdTokenError, RevokedIdTokenError, CertificateFetchError, UserDisabledError
+from firebase_admin.exceptions import FirebaseError
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -33,6 +37,7 @@ oauth.register(
 
 
 def get_token(user: dict):
+    warnings.warn("Function is deprecated in favor of firebase auth")
     registered = False
     email = dict(user).get('email')
     users = User.objects()
@@ -50,7 +55,29 @@ def get_token(user: dict):
             name = userdb["name"]
             print("_id", _id)
     data = {"email": email, "id": _id, "name": name, "registered": registered}
+
     return jsonify_jwt(create_access_token(data=data))
+
+
+@router.get("/verify/firebase-token")
+def verify_firebase_token(token: str) -> dict | HTTPException:
+    try:
+        return verify_id_token(token)
+
+    except ExpiredIdTokenError as e:
+        return HTTPException(403, detail="Id Token has expired.")
+
+    except RevokedIdTokenError as e:
+        return HTTPException(403, detail="Id Token has been revoked")
+
+    except InvalidIdTokenError as e:
+        return HTTPException(403, detail="Id Token is invalid")
+
+    except UserDisabledError as e:
+        return HTTPException(403, detail="User has been disabled.")
+
+    except CertificateFetchError as e:
+        return HTTPException(501, detail="Error fetching certificate")
 
 
 # NOTE
@@ -60,6 +87,7 @@ def get_token(user: dict):
 #         Thus, the `auth/google` endpoint returns a `RedirectResponse` with JWT in its cookies.
 @router.get('/login/cookies', tags=['authentication'])
 async def getJwtFromCookie(request: Request):
+    warnings.warn("Function is deprecated in favor of firebase auth")
     access_token = request.cookies.get('access_token')
     if access_token:
         return {'access_token': access_token}
@@ -70,6 +98,7 @@ async def getJwtFromCookie(request: Request):
 # Tag it as "authentication" for our docs
 @router.get('/login/google', tags=['authentication'])
 async def login(request: Request):
+    warnings.warn("Function is deprecated in favor of firebase auth")
     if request.session.get("user") is None:
         # Redirect Google OAuth back to our application
         redirect_uri = request.url_for('auth_google')
@@ -81,6 +110,7 @@ async def login(request: Request):
 
 @router.route('/auth/google', name="auth_google")
 async def auth(request: Request):
+    warnings.warn("Function is deprecated in favor of firebase auth")
     #print("request.session:", json.dumps(request.session, indent=4))
     registered = False
     # Perform Google OAuth
@@ -115,6 +145,7 @@ async def auth(request: Request):
 # Tag it as "authentication" for our docs
 @router.get('/logout', tags=['authentication'])
 async def logout(request: Request):
+    warnings.warn("Function is deprecated in favor of firebase auth")
     # Remove the user
     request.session.pop('user', None)
     request.session.pop('email', None)

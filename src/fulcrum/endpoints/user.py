@@ -1,9 +1,12 @@
 import datetime
 import json
+from http.client import HTTPException
 from typing import Annotated
 
 from authlib.integrations.base_client import OAuthError
 from fastapi import APIRouter, Form
+from firebase_admin.auth import create_user
+from firebase_admin.exceptions import FirebaseError
 from mongoengine import *
 from pydantic import EmailStr
 from starlette.responses import JSONResponse
@@ -41,9 +44,13 @@ async def get_user_by_email(email: str):
 
 
 @router.post("/register", tags=["register_user"])
-async def register(email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
+async def register(email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse | HTTPException:
     """
         Endpoint for first time user registration.
     """
     user = User(email=email, name=name).save()
-    return get_token({'email': email})
+    try:
+        create_user(uid=User.userid, display_name=User.name, email=User.email, disabled=False)
+    except FirebaseError as e:
+        return HTTPException(502, e)
+    return JSONResponse({"registration_success": True})
