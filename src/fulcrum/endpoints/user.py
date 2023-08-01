@@ -57,7 +57,7 @@ async def get_user_by_id(userid: str):
 
 
 @router.get("/checkExist/userid/{userid}", tags=["get_user"])
-async def check_user_exist_by_id(userid: str):
+async def check_user_exist_by_id(userid: str) -> dict[str, bool]:
     '''
         Endpoint to get user based on user's email
     '''
