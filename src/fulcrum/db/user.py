@@ -8,7 +8,7 @@ from fulcrum.db.chatbot_config import Chatbot
 
 
 class User(Document):
-    userid = ObjectIdField(required=True, primary_key=True)
+    userid = StringField(required=True, primary_key=True)
     email = EmailField(required=True)
     name = StringField(required=True)
     email_verified = BooleanField(default=False)

@@ -48,7 +48,14 @@ async def register(userid: Annotated[str, Form()], email: Annotated[EmailStr, Fo
     """
         Endpoint for first time user registration.
     """
-    user = User(userid=userid, email=email, name=name).save()
-    return JSONResponse({"registration_success": True})
+    User(userid=userid, email=email, name=name).save()
+    user = User.objects(userid=userid)
+    if user:
+        print(json.loads(user[0].to_json()))
+        user = json.loads(user[0].to_json())
+        res = {"user": user}
+    else:
+        res = {"error": "Error creating user in database"}
+    return JSONResponse(res)
 
 
