@@ -112,8 +112,8 @@ class JWTBearer(HTTPBearer):
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
-            if self.verify_jwt(credentials.credentials)[0] != True:
-                raise HTTPException(status_code=403, detail=self.verify_jwt(credentials.credentials)[0])
+            if not self.verify_jwt(credentials.credentials)[0]:
+                raise HTTPException(status_code=403, detail="Invalid token or expired token.")
             if not self.verify_jwt(credentials.credentials)[1]:
                 raise HTTPException(status_code=403, detail="User not registered.")
             return credentials.credentials
@@ -125,13 +125,12 @@ class JWTBearer(HTTPBearer):
         is_registered = False
         try:
             token = verify_token(token)
-            print("token is:", token)
             if token:
                 token_is_valid = True
                 userdb = User.objects(email=token["email"])
                 if userdb:
                     is_registered = True
-            return token, is_registered
+            return token_is_valid, is_registered
 
         except ExpiredIdTokenError as e:
             return HTTPException(403, detail="Id Token has expired.")

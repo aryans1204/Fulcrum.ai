@@ -50,3 +50,5 @@ async def register(userid: Annotated[str, Form()], email: Annotated[EmailStr, Fo
     """
     user = User(userid=userid, email=email, name=name).save()
     return JSONResponse({"registration_success": True})
+
+
