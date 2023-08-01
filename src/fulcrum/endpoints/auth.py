@@ -57,7 +57,7 @@ def get_token(access_token: str, user: dict):
                 name = userdb["name"]
                 print("_id", _id)
 
-    data = {"email": email, "id": _id, "gcip_token:"access_token, "user": user, "name": name, "registered": registered}
+    data = {"email": email, "id": _id, "gcip_token": access_token, "user": user, "name": name, "registered": registered}
 
     return jsonify_jwt(create_access_token(data=data))
 
