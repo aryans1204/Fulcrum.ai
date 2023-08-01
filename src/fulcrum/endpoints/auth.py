@@ -60,7 +60,7 @@ def get_token(user: dict):
     return jsonify_jwt(create_access_token(data=data))
 
 
-@router.get("/verify/firebase-token")
+@router.post("/verify/firebase-token")
 def verify_firebase_token(token: Annotated[str, Form()]):
     try:
         return verify_id_token(token)
