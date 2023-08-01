@@ -44,7 +44,7 @@ async def get_user_by_email(email: str):
 
 
 @router.post("/register", tags=["register_user"])
-async def register(email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse | HTTPException:
+async def register(email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
     """
         Endpoint for first time user registration.
     """

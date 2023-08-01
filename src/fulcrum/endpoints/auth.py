@@ -1,8 +1,9 @@
 import json
 import warnings
-from typing import Optional, List
+from typing import Optional, List, Annotated
 from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from authlib.integrations.base_client import OAuthError
+from fastapi.params import Form
 from firebase_admin.auth import get_user, UserNotFoundError, create_user, verify_id_token, InvalidIdTokenError, \
     ExpiredIdTokenError, RevokedIdTokenError, CertificateFetchError, UserDisabledError
 from firebase_admin.exceptions import FirebaseError
@@ -60,7 +61,7 @@ def get_token(user: dict):
 
 
 @router.get("/verify/firebase-token")
-def verify_firebase_token(token: str) -> dict | HTTPException:
+def verify_firebase_token(token: Annotated[str, Form()]):
     try:
         return verify_id_token(token)
 
@@ -78,6 +79,9 @@ def verify_firebase_token(token: str) -> dict | HTTPException:
 
     except CertificateFetchError as e:
         return HTTPException(501, detail="Error fetching certificate")
+
+    except Exception as e:
+        return HTTPException(500, detail=e)
 
 
 # NOTE
