@@ -39,6 +39,7 @@ oauth.register(
 
 @router.post("/jwt-token/get")
 def get_token(access_token: str, user: dict):
+    warnings.warn("Deprecated in favor of a simpler way")
     registered = False
     _id = None
     name = None
@@ -94,9 +95,9 @@ def verify_firebase_token(token: Annotated[str, Form()]):
 @router.get('/login/cookies', tags=['authentication'])
 async def getJwtFromCookie(request: Request):
     warnings.warn("Function is deprecated in favor of firebase auth")
-    access_token = request.cookies.get('access_token')
-    if access_token:
-        return {'access_token': access_token}
+    jwt_token = request.cookies.get('jwt_token')
+    if jwt_token:
+        return {'jwt_token': jwt_token}
     else:
         return {}
 
@@ -141,9 +142,9 @@ async def auth(request: Request):
         #print("clientSecret:", os.environ.get('GOOGLE_CLIENT_SECRET'))
         raise HTTPException(status_code=500, detail=str(e))
 
-    access_token = get_token(user)['access_token']
+    jwt_token = get_token(user)['jwt_token']
     response = RedirectResponse(CLIENT_BASE_URL + "login")
-    response.set_cookie("access_token", access_token,
+    response.set_cookie("jwt_token", jwt_token,
                         samesite='none', secure=True)
     return response
 
@@ -158,5 +159,5 @@ async def logout(request: Request):
     request.session.pop('userid', None)
 
     response = RedirectResponse(CLIENT_BASE_URL)
-    response.delete_cookie("access_token")
+    response.delete_cookie("jwt_token")
     return response

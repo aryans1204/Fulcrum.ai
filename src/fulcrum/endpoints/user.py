@@ -44,13 +44,9 @@ async def get_user_by_email(email: str):
 
 
 @router.post("/register", tags=["register_user"])
-async def register(email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
+async def register(userid: Annotated[str, Form()], email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
     """
         Endpoint for first time user registration.
     """
-    user = User(email=email, name=name).save()
-    try:
-        create_user(uid=User.userid, display_name=User.name, email=User.email, disabled=False)
-    except FirebaseError as e:
-        return HTTPException(502, e)
+    user = User(userid=userid, email=email, name=name).save()
     return JSONResponse({"registration_success": True})
