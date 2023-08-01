@@ -37,30 +37,32 @@ oauth.register(
 )
 
 
-def get_token(user: dict):
-    warnings.warn("Function is deprecated in favor of firebase auth")
+@router.post("/jwt-token/get")
+def get_token(access_token: str, user: dict):
     registered = False
-    email = dict(user).get('email')
-    users = User.objects()
     _id = None
     name = None
-    if users:
-        userdb = User.objects(email=email)
-        print(userdb)
-        print(type(userdb))
-        if userdb:
-            userdb = json.loads(userdb.to_json())[0]
+    email = user.get('email')
+    if email:
+        users = User.objects()
+        if users:
+            userdb = User.objects(email=email)
             print(userdb)
-            registered = True
-            _id = userdb["_id"]['$oid']
-            name = userdb["name"]
-            print("_id", _id)
-    data = {"email": email, "id": _id, "name": name, "registered": registered}
+            print(type(userdb))
+            if userdb:
+                userdb = json.loads(userdb.to_json())[0]
+                print(userdb)
+                registered = True
+                _id = userdb["_id"]['$oid']
+                name = userdb["name"]
+                print("_id", _id)
+
+    data = {"email": email, "id": _id, "user": user, "name": name, "registered": registered}
 
     return jsonify_jwt(create_access_token(data=data))
 
 
-@router.post("/verify/firebase-token")
+"""@router.post("/verify/firebase-token")
 def verify_firebase_token(token: Annotated[str, Form()]):
     try:
         return verify_id_token(token)
@@ -81,7 +83,7 @@ def verify_firebase_token(token: Annotated[str, Form()]):
         return HTTPException(501, detail="Error fetching certificate")
 
     except Exception as e:
-        return HTTPException(500, detail=e)
+        return HTTPException(500, detail=e)"""
 
 
 # NOTE

@@ -70,13 +70,13 @@ def decodeJWT(token: str) -> dict:
         raise CREDENTIALS_EXCEPTION
 
 
-class JWTBearerOld(HTTPBearer):
+class JWTBearer(HTTPBearer):
     def __init__(self, auto_error: bool = True):
         warnings.warn("Function is deprecated in favor of firebase auth")
-        super(JWTBearerOld, self).__init__(auto_error=auto_error)
+        super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearerOld, self).__call__(request)
+        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
@@ -102,7 +102,7 @@ class JWTBearerOld(HTTPBearer):
         return token_is_valid, registered
 
 
-class JWTBearer(HTTPBearer):
+"""class JWTBearer(HTTPBearer):
     def __init__(self, auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
@@ -144,7 +144,7 @@ class JWTBearer(HTTPBearer):
             return HTTPException(403, detail="User has been disabled.")
 
         except CertificateFetchError as e:
-            return HTTPException(501, detail="Error fetching certificate")
+            return HTTPException(501, detail="Error fetching certificate")"""
 
 
 def jsonify_jwt(token):
