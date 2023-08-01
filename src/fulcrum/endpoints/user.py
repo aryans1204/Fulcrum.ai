@@ -43,6 +43,31 @@ async def get_user_by_email(email: str):
 # Note: currently Users are automatically created during the login process if they are not registered
 
 
+@router.get("/userid/{userid}", tags=["get_user"])
+async def get_user_by_id(userid: str):
+    '''
+        Endpoint to get user based on user's email
+    '''
+    users = User.objects(userid=userid)
+    if users:
+        user = json.loads(users[0].to_json())
+        return {"user": user}
+    else:
+        return {"user": None}
+
+
+@router.get("/checkExist/userid/{userid}", tags=["get_user"])
+async def check_user_exist_by_id(userid: str):
+    '''
+        Endpoint to get user based on user's email
+    '''
+    users = User.objects(userid=userid)
+    if users:
+        return {"userExists": True}
+    else:
+        return {"userExists": False}
+
+
 @router.post("/register", tags=["register_user"])
 async def register(userid: Annotated[str, Form()], email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
     """
