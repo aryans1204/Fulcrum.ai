@@ -57,15 +57,19 @@ async def get_user_by_id(userid: str):
 
 
 @router.get("/checkExist/userid/{userid}", tags=["get_user"])
-async def check_user_exist_by_id(userid: str) -> dict[str, bool]:
+async def check_user_exist_by_id(userid: str):
     '''
         Endpoint to get user based on user's email
     '''
-    users = User.objects(userid=userid)
-    if users:
-        return {"userExists": True}
-    else:
-        return {"userExists": False}
+    try:
+        users = User.objects(userid=userid)
+        if users:
+            return {"userExists": True}
+        else:
+            return {"userExists": False}
+    except Exception as e:
+        print("error:", e)
+        return HTTPException(500, e)
 
 
 @router.post("/register", tags=["register_user"])
