@@ -39,6 +39,7 @@ chromadb-client = "^0.4.3.dev0"
 tiktoken = "^0.4.0"
 pyjwt = "^2.8.0"
 email-validator = "^2.0.0.post2"
+firebase-admin = "^6.2.0"
 
 [build-system]
 requires = ["poetry-core"]

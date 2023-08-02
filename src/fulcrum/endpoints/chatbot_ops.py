@@ -24,6 +24,9 @@ router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=
 
 @router.get("/get/all")
 async def getAllChatbots():
+    """
+        Is a development endpoint
+    """
     return Chatbot.objects().to_json()
 
 
@@ -74,8 +77,10 @@ async def init_chatbot(userid: str) -> dict:
     user = User.objects(userid=userid)
     if user:
         ids = [c.chatbot_id for c in user[0].chatbotConfigs]
+        print("ids:", ids)
         return {"chatbots": ids}
     else:
+        print("error, user does not exist")
         return {"error": "No such User exists"}
 
 
@@ -102,11 +107,11 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
         }
     '''
     print("chatbotID:", chatbotID)
-    url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
+    url = deployChatbot({"gcs_bucket": chatbotID + userid.lower(), "chatbot_id": chatbotID}, userid.lower())
     user = User.objects(userid=userid)[0]
     #print("user:", user.to_json())
     bots = user.chatbotConfigs
-    chromadb_index = userid + chatbotID
+    chromadb_index = userid.lower() + chatbotID
     chatbot = Chatbot(chatbot_id=chatbotID, chromadb_index=chromadb_index, deployedURL=url,
                       personality=personality, dataFileName=dataFileName, gcs_bucket=chatbotID + userid)
     """chatbotID = str(uuid.uuid4())
@@ -142,12 +147,17 @@ async def delete_chatbot(userid: str, chatbot_id: str):
            102: Bad MongoDB error
        }
     """
-    deleteChatbot(userid + chatbot_id)
-    chatbot = Chatbot.objects(chatbot_id=chatbot_id)
-    chatbot.delete()
-    deleteBucket(userid + chatbot_id)
-    deleteDB(userid, chatbot_id)
-    return {"msg": "Success"}
+    user = User.objects(userid=userid)
+    if user:
+        chatbot = Chatbot.objects(chatbot_id=chatbot_id)[0]
+        chatbot.delete()
+        deleteChatbot(userid.lower() + chatbot_id)
+
+        deleteBucket(userid.lower() + chatbot_id)
+        deleteDB(userid.lower(), chatbot_id)
+        return {"msg": "Success"}
+    else:
+        return {"error": "user not found"}
 
 
 @router.post("/uploadTrainingData", tags=["trainData"])
@@ -165,7 +175,7 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
         if not os.path.isdir("images"):
             os.mkdir("images")
     except Exception as e:
-        #print(e)
+        print("error1:", type(e), e)
         return {"msg": "Failure1", "error": e}
 
     file_path = os.getcwd() + "/images" + file.filename.replace(" ", "-")
@@ -173,15 +183,16 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
         f.write(file.file.read())
         f.close()
     userid = str(User.objects(email=email)[0].userid)
-    #print('userid:', userid)
+    print('userid:', userid)
     try:
         chatbotID = str(datetime.datetime.now().timestamp()).replace('.', '')
-        createBucket(userid + chatbotID)
-        #print("created bucket")
-        uploadObj(userid + chatbotID, file_path, userid + chatbotID + ".pdf")
-        #print("uploaded object")
-        insertDB(file_path, userid, chatbotID)
+        createBucket(userid.lower() + chatbotID)
+        print("created bucket")
+        uploadObj(userid.lower() + chatbotID, file_path, userid + chatbotID + ".pdf")
+        print("uploaded object")
+        insertDB(file_path, userid.lower(), chatbotID)
+        print("inserted db")
         return {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
     except Exception as e:
-        #print("error2:", type(e), e)
+        print("error2:", type(e), e)
         return {"msg": "Failure2", "error": e}

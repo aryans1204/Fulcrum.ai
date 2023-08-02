@@ -1,5 +1,6 @@
 import os
 import time
+import warnings
 from datetime import datetime
 from datetime import timedelta
 
@@ -8,6 +9,11 @@ from fastapi import Depends, Request
 from fastapi import HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordBearer, HTTPBearer, HTTPAuthorizationCredentials
+from firebase_admin.app_check import verify_token
+from firebase_admin.auth import verify_id_token, ExpiredIdTokenError, RevokedIdTokenError, InvalidIdTokenError, \
+    UserDisabledError, CertificateFetchError
+
+from fulcrum.db.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/google")
 
@@ -65,12 +71,13 @@ def decodeJWT(token: str) -> dict:
         raise CREDENTIALS_EXCEPTION
 
 
-class JWTBearer(HTTPBearer):
+class JWTBearerOld(HTTPBearer):
     def __init__(self, auto_error: bool = True):
-        super(JWTBearer, self).__init__(auto_error=auto_error)
+        warnings.warn("Function is deprecated in favor of firebase auth")
+        super(JWTBearerOld, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+        credentials: HTTPAuthorizationCredentials = await super(JWTBearerOld, self).__call__(request)
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
@@ -94,6 +101,51 @@ class JWTBearer(HTTPBearer):
             registered = payload["registered"]
 
         return token_is_valid, registered
+
+
+class JWTBearer(HTTPBearer):
+    def __init__(self, auto_error: bool = True):
+        super(JWTBearer, self).__init__(auto_error=auto_error)
+
+    async def __call__(self, request: Request):
+        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+        if credentials:
+            if not credentials.scheme == "Bearer":
+                raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
+            if not self.verify_jwt(credentials.credentials)[0]:
+                raise HTTPException(status_code=403, detail="Invalid token or expired token.")
+            if not self.verify_jwt(credentials.credentials)[1]:
+                raise HTTPException(status_code=403, detail="User not registered.")
+            return credentials.credentials
+        else:
+            raise HTTPException(status_code=403, detail="Invalid authorization code.")
+
+    def verify_jwt(self, token: str) -> (bool, bool):
+        token_is_valid: bool = False
+        is_registered = False
+        try:
+            token = verify_id_token(token)
+            if token:
+                token_is_valid = True
+                userdb = User.objects(email=token["email"])
+                if userdb:
+                    is_registered = True
+            return token_is_valid, is_registered
+
+        except ExpiredIdTokenError as e:
+            return HTTPException(403, detail="Id Token has expired.")
+
+        except RevokedIdTokenError as e:
+            return HTTPException(403, detail="Id Token has been revoked")
+
+        except InvalidIdTokenError as e:
+            return HTTPException(403, detail="Id Token is invalid")
+
+        except UserDisabledError as e:
+            return HTTPException(403, detail="User has been disabled.")
+
+        except CertificateFetchError as e:
+            return HTTPException(501, detail="Error fetching certificate")
 
 
 def jsonify_jwt(token):

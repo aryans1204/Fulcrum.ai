@@ -1,9 +1,12 @@
 import datetime
 import json
+from http.client import HTTPException
 from typing import Annotated
 
 from authlib.integrations.base_client import OAuthError
 from fastapi import APIRouter, Form
+from firebase_admin.auth import create_user
+from firebase_admin.exceptions import FirebaseError
 from mongoengine import *
 from pydantic import EmailStr
 from starlette.responses import JSONResponse
@@ -40,10 +43,48 @@ async def get_user_by_email(email: str):
 # Note: currently Users are automatically created during the login process if they are not registered
 
 
+@router.get("/userid/{userid}", tags=["get_user"])
+async def get_user_by_id(userid: str):
+    '''
+        Endpoint to get user based on user's email
+    '''
+    users = User.objects(userid=userid)
+    if users:
+        user = json.loads(users[0].to_json())
+        return {"user": user}
+    else:
+        return {"user": None}
+
+
+@router.get("/checkExist/userid/{userid}", tags=["get_user"])
+async def check_user_exist_by_id(userid: str):
+    '''
+        Endpoint to get user based on user's email
+    '''
+    try:
+        users = User.objects(userid=userid)
+        if users:
+            return {"userExists": True}
+        else:
+            return {"userExists": False}
+    except Exception as e:
+        print("error:", e)
+        return HTTPException(500, e)
+
+
 @router.post("/register", tags=["register_user"])
-async def register(email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
+async def register(userid: Annotated[str, Form()], email: Annotated[EmailStr, Form()], name: Annotated[str, Form()]) -> JSONResponse:
     """
         Endpoint for first time user registration.
     """
-    user = User(email=email, name=name).save()
-    return get_token({'email': email})
+    User(userid=userid, email=email, name=name).save()
+    user = User.objects(userid=userid)
+    if user:
+        print(json.loads(user[0].to_json()))
+        user = json.loads(user[0].to_json())
+        res = {"user": user}
+    else:
+        res = {"error": "Error creating user in database"}
+    return JSONResponse(res)
+
+
