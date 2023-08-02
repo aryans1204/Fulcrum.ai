@@ -183,14 +183,15 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
         f.write(file.file.read())
         f.close()
     userid = str(User.objects(email=email)[0].userid)
-    #print('userid:', userid)
+    print('userid:', userid)
     try:
         chatbotID = str(datetime.datetime.now().timestamp()).replace('.', '')
         createBucket(userid + chatbotID)
-        #print("created bucket")
+        print("created bucket")
         uploadObj(userid + chatbotID, file_path, userid + chatbotID + ".pdf")
-        #print("uploaded object")
+        print("uploaded object")
         insertDB(file_path, userid, chatbotID)
+        print("inserted db")
         return {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
     except Exception as e:
         print("error2:", type(e), e)
