@@ -124,7 +124,7 @@ class JWTBearer(HTTPBearer):
         token_is_valid: bool = False
         is_registered = False
         try:
-            token = verify_token(token)
+            token = verify_id_token(token)
             if token:
                 token_is_valid = True
                 userdb = User.objects(email=token["email"])
