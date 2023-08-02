@@ -175,7 +175,7 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
         if not os.path.isdir("images"):
             os.mkdir("images")
     except Exception as e:
-        #print(e)
+        print("error1:", type(e), e)
         return {"msg": "Failure1", "error": e}
 
     file_path = os.getcwd() + "/images" + file.filename.replace(" ", "-")
@@ -193,5 +193,5 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
         insertDB(file_path, userid, chatbotID)
         return {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
     except Exception as e:
-        #print("error2:", type(e), e)
+        print("error2:", type(e), e)
         return {"msg": "Failure2", "error": e}
