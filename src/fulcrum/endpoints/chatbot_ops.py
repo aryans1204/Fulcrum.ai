@@ -107,11 +107,11 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
         }
     '''
     print("chatbotID:", chatbotID)
-    url = deployChatbot({"gcs_bucket": chatbotID + userid, "chatbot_id": chatbotID}, userid)
+    url = deployChatbot({"gcs_bucket": chatbotID + userid.lower(), "chatbot_id": chatbotID}, userid.lower())
     user = User.objects(userid=userid)[0]
     #print("user:", user.to_json())
     bots = user.chatbotConfigs
-    chromadb_index = userid + chatbotID
+    chromadb_index = userid.lower() + chatbotID
     chatbot = Chatbot(chatbot_id=chatbotID, chromadb_index=chromadb_index, deployedURL=url,
                       personality=personality, dataFileName=dataFileName, gcs_bucket=chatbotID + userid)
     """chatbotID = str(uuid.uuid4())
@@ -151,10 +151,10 @@ async def delete_chatbot(userid: str, chatbot_id: str):
     if user:
         chatbot = Chatbot.objects(chatbot_id=chatbot_id)[0]
         chatbot.delete()
-        deleteChatbot(userid + chatbot_id)
+        deleteChatbot(userid.lower() + chatbot_id)
 
-        deleteBucket(userid + chatbot_id)
-        deleteDB(userid, chatbot_id)
+        deleteBucket(userid.lower() + chatbot_id)
+        deleteDB(userid.lower(), chatbot_id)
         return {"msg": "Success"}
     else:
         return {"error": "user not found"}
@@ -186,11 +186,11 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
     print('userid:', userid)
     try:
         chatbotID = str(datetime.datetime.now().timestamp()).replace('.', '')
-        createBucket(userid + chatbotID)
+        createBucket(userid.lower() + chatbotID)
         print("created bucket")
-        uploadObj(userid + chatbotID, file_path, userid + chatbotID + ".pdf")
+        uploadObj(userid.lower() + chatbotID, file_path, userid + chatbotID + ".pdf")
         print("uploaded object")
-        insertDB(file_path, userid, chatbotID)
+        insertDB(file_path, userid.lower(), chatbotID)
         print("inserted db")
         return {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
     except Exception as e:
