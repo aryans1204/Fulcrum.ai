@@ -9,7 +9,7 @@ router = APIRouter()
 @router.websocket("/api/comms/chat/auth")
 async def chat_endpoint(wb: WebSocket, id_token: str):
     is_auth = verify_jwt(id_token)
-    print("is_auth", is_auth)
+    print("is auth:", is_auth)
     if is_auth is True:
         await wb.accept()
         while True:
@@ -21,6 +21,5 @@ async def chat_endpoint(wb: WebSocket, id_token: str):
             res = queryGPT(data)
             await wb.send_text(res)
     else:
-        return HTTPException(401, detail="Invalid authentication credentials.")
-
+        await wb.close(403, "Invalid Authentication Credentials")
 
