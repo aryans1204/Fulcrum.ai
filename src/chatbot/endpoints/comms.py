@@ -6,11 +6,10 @@ from src.gcloud.gptutils import queryGPT
 router = APIRouter()
 
 
-@router.websocket("/api/comms/chat/auth")
+@router.websocket("/api/comms/chat/auth/")
 async def chat_endpoint(wb: WebSocket, id_token: str):
     is_auth = verify_jwt(id_token)
-    print("is_auth", is_auth)
-    if is_auth is True:
+    if is_auth:
         await wb.accept()
         while True:
             data = await wb.receive_text()
