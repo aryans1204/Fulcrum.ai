@@ -9,8 +9,9 @@ router = APIRouter()
 @router.websocket("/api/comms/chat/auth")
 async def chat_endpoint(wb: WebSocket, id_token: str):
     is_auth = verify_jwt(id_token)
-    await wb.accept()
+    print("is_auth", is_auth)
     if is_auth is True:
+        await wb.accept()
         while True:
             data = await wb.receive_text()
             '''
