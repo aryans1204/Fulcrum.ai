@@ -6,7 +6,7 @@ router = APIRouter()
 
 
 @router.get("/api/auth/verify")
-def verify_jwt(self, token: str):
+def verify_jwt(token: str):
     token_is_valid: bool = False
     try:
         token = verify_id_token(token)
