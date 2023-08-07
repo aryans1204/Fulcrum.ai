@@ -42,7 +42,9 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     output = re.findall("https.*app", str(output))
     subprocess.run(["rm", f"{os.environ['YAML_DIR']}/services_temp.yaml"])
     #print("output:", output)
-    return output[0]
+    output[0] = str(output[0])
+    url = output[0].split("\\n")[0]
+    return url
 
 
 def deleteChatbot(service_name: str):
