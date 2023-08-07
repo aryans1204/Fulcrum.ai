@@ -8,3 +8,4 @@ src/.DS_Store
 .idea/
 dev/
 dev.zip
+firebase_creds.json

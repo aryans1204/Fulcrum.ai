@@ -50,7 +50,7 @@ routers = [auth_router, chat_router, user_router, docs_router, faq_router]
 for router in routers:
     app.include_router(router)
 
-cred = credentials.Certificate(os.environ["FIREBASE_CREDENTIALS"])
+cred = credentials.Certificate(os.environ["FIREBASE_CREDS_FULCRUM"])
 default_app = firebase_admin.initialize_app(cred)
 
 
