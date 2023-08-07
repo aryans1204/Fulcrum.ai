@@ -1,19 +1,25 @@
-from fastapi import APIRouter, WebSocket
+from fastapi import APIRouter, WebSocket, HTTPException
+
+from chatbot.endpoints.auth import verify_jwt
 from src.gcloud.gptutils import queryGPT
 
 router = APIRouter()
 
 
-@router.websocket("/api/comms/chat")
-async def chat_endpoint(wb: WebSocket):
+@router.websocket("/api/comms/chat?auth={id_token}")
+async def chat_endpoint(wb: WebSocket, id_token: str):
+    is_auth = verify_jwt(id_token)
     await wb.accept()
-    while True:
-        data = await wb.receive_text()
-        '''
-            At this section, endpoint will execute the langchain GPT querying to get back the
-            response from GPT, and dump to the frontend
-        '''
-        res = queryGPT(data)
-        await wb.send_text(res)
+    if is_auth:
+        while True:
+            data = await wb.receive_text()
+            '''
+                At this section, endpoint will execute the langchain GPT querying to get back the
+                response from GPT, and dump to the frontend
+            '''
+            res = queryGPT(data)
+            await wb.send_text(res)
+    else:
+        return HTTPException(401, detail="Invalid authentication credentials.")
 
 
