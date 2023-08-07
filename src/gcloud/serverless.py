@@ -24,6 +24,8 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     d["spec"]["template"]["spec"]["containers"][0]["env"][5]["value"] = os.environ["TOP_P"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][6]["value"] = os.environ["CHROMA_URL"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][7]["value"] = os.environ["CHROMA_PORT"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][8]["value"] = os.environ["OPENAI_API_KEY"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][9]["value"] = os.environ["FIREBASE_CREDENTIALS"]
     d["metadata"]["name"] = name
     file = open(f"{os.environ['YAML_DIR']}/services_temp.yaml", "w")
     yaml.dump(d, file)
@@ -40,7 +42,9 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     output = re.findall("https.*app", str(output))
     subprocess.run(["rm", f"{os.environ['YAML_DIR']}/services_temp.yaml"])
     #print("output:", output)
-    return output[0]
+    output[0] = str(output[0])
+    url = output[0].split("\\n")[0]
+    return url
 
 
 def deleteChatbot(service_name: str):
