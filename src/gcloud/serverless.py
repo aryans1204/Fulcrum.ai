@@ -24,6 +24,7 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     d["spec"]["template"]["spec"]["containers"][0]["env"][5]["value"] = os.environ["TOP_P"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][6]["value"] = os.environ["CHROMA_URL"]
     d["spec"]["template"]["spec"]["containers"][0]["env"][7]["value"] = os.environ["CHROMA_PORT"]
+    d["spec"]["template"]["spec"]["containers"][0]["env"][8]["value"] = os.environ["OPENAI_API_KEY"]
     d["metadata"]["name"] = name
     file = open(f"{os.environ['YAML_DIR']}/services_temp.yaml", "w")
     yaml.dump(d, file)

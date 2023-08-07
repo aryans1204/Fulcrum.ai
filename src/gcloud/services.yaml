@@ -8,7 +8,7 @@ spec:
       containers:
       - image: us-docker.pkg.dev/cloudrun/container/hello:latest
         env:
-        - name: chromadb_index
+        - name: chroma_index
           value: "test"
         - name: GCS_BUCKET
           value: "test"
@@ -24,3 +24,5 @@ spec:
           value: "test"
         - name: chroma_port
           value: 123
+        - name: OPENAI_API_KEY
+          value: "test"
