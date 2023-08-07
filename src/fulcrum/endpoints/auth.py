@@ -23,7 +23,7 @@ FULCRUM_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
 SRC_DIR = os.path.join(FULCRUM_DIR, os.pardir)
 ROOT_DIR = os.path.join(SRC_DIR, os.pardir)
 CONFIG_FILE = os.path.abspath(os.path.join(os.path.abspath(ROOT_DIR), ".env"))
-print("config_file:", CONFIG_FILE)
+#print("config_file:", CONFIG_FILE)
 
 # TODO: Add Client production base url
 CLIENT_BASE_URL = 'http://localhost:3000/' if os.environ.get(
@@ -49,15 +49,15 @@ def get_token(access_token: str, user: dict):
         users = User.objects()
         if users:
             userdb = User.objects(email=email)
-            print(userdb)
-            print(type(userdb))
+            #print(userdb)
+            #print(type(userdb))
             if userdb:
                 userdb = json.loads(userdb.to_json())[0]
-                print(userdb)
+                #print(userdb)
                 registered = True
                 _id = userdb["_id"]['$oid']
                 name = userdb["name"]
-                print("_id", _id)
+                #print("_id", _id)
 
     data = {"email": email, "id": _id, "gcip_token": access_token, "user": user, "name": name, "registered": registered}
 
@@ -85,7 +85,7 @@ def verify_firebase_token(token: Annotated[str, Form()]):
         return HTTPException(501, detail="Error fetching certificate")
 
     except Exception as e:
-        print("Exception:", e)
+        #print("Exception:", e)
         return HTTPException(500, detail=e)
 
 
