@@ -26,3 +26,5 @@ spec:
           value: 123
         - name: OPENAI_API_KEY
           value: "test"
+        - name: FIREBASE_CREDENTIALS
+          value: "test"
