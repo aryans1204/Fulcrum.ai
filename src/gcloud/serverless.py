@@ -37,6 +37,7 @@ def deployChatbot(chatbot: dict, username: str) -> str:
     service = str(d["metadata"]["name"])
     #print("service:", service)
     #print("len svc:", len(service))
+    subprocess.run(["gcloud", "run", "services", "set-iam-policy", f"{service}", f"{os.environ['YAML_DIR']}/policy.yaml", "--quiet"])
     output = subprocess.run(["gcloud", "run", "services", "describe", f"{service}"], capture_output=True).stdout
     #print("bp3")
     output = re.findall("https.*app", str(output))
