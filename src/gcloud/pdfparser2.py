@@ -92,10 +92,16 @@ def chunk_token_limit(chunks: Sequence[str]) -> Sequence[str]:
             c2 = c[len(c)/2:]
             res.append(c1)
             res.append(c2)
-        elif tokens + tokens2 <= 4096:
-            res.append(c+cn)
         else:
-            res.append(c)
+            ans = ""
+            while i < len(chunks)-3 and tokens+tokens2 <= 4096:
+                ans += " " + c + " " + cn
+                i += 2
+                c = chunks[i]
+                cn = chunks[i+1]
+                tokens = len(tokenizer.encode(c))
+                tokens2 = len(tokenizer.encode(cn))
+            res.append(ans)
 
     return res
 
