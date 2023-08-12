@@ -110,7 +110,7 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
     url = deployChatbot({"gcs_bucket": userid.lower()+chatbotID, "chatbot_id": chatbotID}, userid.lower())
     user = User.objects(userid=userid)[0]
     if user.no_chatbots >= 5:
-        return {"error": "You have previouly created 5 chatbots, which is the rate limit for current usage. Please delete an existing
+        return {"error": "You have previouly created 5 chatbots, which is the rate limit for current usage. Please delete an existing \
                 chatbot to create a new one."}
     #print("user:", user.to_json())
     bots = user.chatbotConfigs
