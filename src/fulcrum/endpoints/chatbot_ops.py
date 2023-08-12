@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Annotated
 
 from bson import ObjectId
 from fastapi.params import Depends
+from fastapi.encoders import jsonable_encoder
 from mongoengine import *
 from fastapi import APIRouter, UploadFile, File, Form
 from pydantic import EmailStr
@@ -19,7 +20,7 @@ from gcloud.bucket_storage import deleteBucket, createBucket, uploadObj
 import shutil
 import os
 from starlette.requests import Request
-router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"]) #, dependencies=[Depends(JWTBearer())])
+router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(JWTBearer())])
 
 
 @router.get("/get/all")
