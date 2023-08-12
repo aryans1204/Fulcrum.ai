@@ -107,13 +107,13 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
         }
     '''
     #print("chatbotID:", chatbotID)
-    url = deployChatbot({"gcs_bucket": chatbotID + userid.lower(), "chatbot_id": chatbotID}, userid.lower())
+    url = deployChatbot({"gcs_bucket": userid.lower()+chatbotID, "chatbot_id": chatbotID}, userid.lower())
     user = User.objects(userid=userid)[0]
     #print("user:", user.to_json())
     bots = user.chatbotConfigs
     chromadb_index = userid.lower() + chatbotID
     chatbot = Chatbot(chatbot_id=chatbotID, chromadb_index=chromadb_index, deployedURL=url,
-                      personality=personality, dataFileName=dataFileName, gcs_bucket=chatbotID + userid)
+                      personality=personality, dataFileName=dataFileName, gcs_bucket=userid.lower()+chatbotID)
     """chatbotID = str(uuid.uuid4())
     url = deployChatbot({"gcs_bucket":userid+chatbotID, "chatbot_id": chatbotID}, userid)
     user = User.objects.get_queryset(userid=userid)
@@ -185,12 +185,12 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
     userid = str(User.objects(email=email)[0].userid)
     #print('userid:', userid)
     try:
-        chatbotID = str(datetime.datetime.now().timestamp()).replace('.', '')
+        chatbotID = str(uuid.uuid4())
         createBucket(userid.lower() + chatbotID)
         #print("created bucket")
         uploadObj(userid.lower() + chatbotID, file_path, userid + chatbotID + ".pdf")
         #print("uploaded object")
-        insertDB(file_path, userid.lower(), chatbotID)
+        insertDB(file_path, "a"+userid.lower(), chatbotID)
         #print("inserted db")
         return {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
     except Exception as e:
