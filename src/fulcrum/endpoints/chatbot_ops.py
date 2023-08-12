@@ -19,7 +19,7 @@ from gcloud.bucket_storage import deleteBucket, createBucket, uploadObj
 import shutil
 import os
 from starlette.requests import Request
-router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"], dependencies=[Depends(JWTBearer())])
+router = APIRouter(prefix="/api/chatbot", tags=["api", "chatbot"]) #, dependencies=[Depends(JWTBearer())])
 
 
 @router.get("/get/all")
@@ -192,14 +192,16 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
     userid = str(User.objects(email=email)[0].userid)
     #print('userid:', userid)
     try:
-        chatbotID = str(uuid.uuid4())
+        chatbotID = str(uuid.uuid4())[0:32]
         createBucket(userid.lower() + chatbotID)
         #print("created bucket")
         uploadObj(userid.lower() + chatbotID, file_path, userid + chatbotID + ".pdf")
         #print("uploaded object")
         insertDB(file_path, "a"+userid.lower(), chatbotID)
         #print("inserted db")
-        return {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
+        msg = {"msg": "Success", "filename": file.filename, "chatbotID": chatbotID}
+        return jsonable_encoder(msg)
     except Exception as e:
         #print("error2:", type(e), e)
-        return {"msg": "Failure2", "error": e}
+        msg = {"msg": "Failure2", "error": e}
+        return jsonable_encoder(msg)
