@@ -109,6 +109,9 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
     #print("chatbotID:", chatbotID)
     url = deployChatbot({"gcs_bucket": userid.lower()+chatbotID, "chatbot_id": chatbotID}, userid.lower())
     user = User.objects(userid=userid)[0]
+    if user.no_chatbots >= 5:
+        return {"error": "You have previouly created 5 chatbots, which is the rate limit for current usage. Please delete an existing
+                chatbot to create a new one."}
     #print("user:", user.to_json())
     bots = user.chatbotConfigs
     chromadb_index = userid.lower() + chatbotID
@@ -122,6 +125,7 @@ async def create_chatbot(userid: Annotated[str, Form()], chatbotID: Annotated[st
     bots.append(chatbot)
     chatbot.save()
     user.chatbotConfigs = bots
+    user.no_chatbots += 1
     user.save()
 
     return {"endpointURL": url}
@@ -150,11 +154,14 @@ async def delete_chatbot(userid: str, chatbot_id: str):
     user = User.objects(userid=userid)
     if user:
         chatbot = Chatbot.objects(chatbot_id=chatbot_id)[0]
+        user.chatbotConfigs = [bot for bot in user.chatbotConfigs if bot.chatbot_id != chatbot_id]
         chatbot.delete()
-        deleteChatbot(userid.lower() + chatbot_id)
+        deleteChatbot("a"+userid.lower() + chatbot_id)
 
         deleteBucket(userid.lower() + chatbot_id)
         deleteDB(userid.lower(), chatbot_id)
+        user.no_chatbots = min(0, user.no_chatbots-1)
+        user.save()
         return {"msg": "Success"}
     else:
         return {"error": "user not found"}
