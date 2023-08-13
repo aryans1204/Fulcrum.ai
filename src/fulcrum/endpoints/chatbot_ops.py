@@ -7,7 +7,7 @@ from bson import ObjectId
 from fastapi.params import Depends
 from fastapi.encoders import jsonable_encoder
 from mongoengine import *
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from pydantic import EmailStr
 
 from fulcrum.auth.auth_jwt import JWTBearer
@@ -184,7 +184,8 @@ async def uploadTraining(file: UploadFile, email: Annotated[EmailStr, Form()]):
             os.mkdir("images")
     except Exception as e:
         #("error1:", type(e), e)
-        return {"msg": "Failure1", "error": e}
+        print("error:", e)
+        raise HTTPException(500, "Failed to initialize image cache directory.")
 
     file_path = os.getcwd() + "/images" + file.filename.replace(" ", "-")
     with open(file_path, "wb") as f:
