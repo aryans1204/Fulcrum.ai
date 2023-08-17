@@ -112,11 +112,15 @@ class JWTBearer(HTTPBearer):
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
-            if not self.verify_jwt(credentials.credentials)[0]:
-                raise HTTPException(status_code=403, detail="Invalid token or expired token.")
-            if not self.verify_jwt(credentials.credentials)[1]:
-                raise HTTPException(status_code=403, detail="User not registered.")
-            return credentials.credentials
+            verification = self.verify_jwt(credentials.credentials)
+            if verification is not None and isinstance(verification, tuple) and len(verification) == 2:
+                if not self.verify_jwt(credentials.credentials)[0]:
+                    raise HTTPException(status_code=403, detail="Invalid token or expired token.")
+                if not self.verify_jwt(credentials.credentials)[1]:
+                    raise HTTPException(status_code=403, detail="User not registered.")
+                return credentials.credentials
+            else:
+                raise HTTPException(status_code=500, detail="JWT Verification Error.")
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
@@ -133,19 +137,19 @@ class JWTBearer(HTTPBearer):
             return token_is_valid, is_registered
 
         except ExpiredIdTokenError as e:
-            return HTTPException(403, detail="Id Token has expired.")
+            raise HTTPException(403, detail="Id Token has expired.")
 
         except RevokedIdTokenError as e:
-            return HTTPException(403, detail="Id Token has been revoked")
+            raise HTTPException(403, detail="Id Token has been revoked")
 
         except InvalidIdTokenError as e:
-            return HTTPException(403, detail="Id Token is invalid")
+            raise HTTPException(403, detail="Id Token is invalid")
 
         except UserDisabledError as e:
-            return HTTPException(403, detail="User has been disabled.")
+            raise HTTPException(403, detail="User has been disabled.")
 
         except CertificateFetchError as e:
-            return HTTPException(501, detail="Error fetching certificate")
+            raise HTTPException(501, detail="Error fetching certificate")
 
 
 def jsonify_jwt(token):
